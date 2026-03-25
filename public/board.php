@@ -1,6 +1,6 @@
 <?php
-require '../app/storage/index.php';
-require '../app/functions.php';
+require __DIR__.'/../app/storage/index.php';
+require __DIR__.'/../app/functions.php';
 
 $board=$_GET['board'] ?? 'test';
 
