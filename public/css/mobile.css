@@ -1,33 +1,50 @@
 @media (max-width: 768px) {
 
+body {
+    font-size: 14px;
+}
+
 .container {
     width: 95%;
     margin: 10px auto;
 }
 
-.board-title {
-    font-size: 20px;
+h1, h2 {
+    font-size: 18px;
 }
 
 .post {
     padding: 10px;
 }
 
-.post-form textarea {
+textarea {
+    width: 100%;
     height: 60px;
 }
 
-.reply-form input {
+input[type="text"],
+input[name="reply"] {
     width: 100%;
     margin-bottom: 5px;
 }
 
-.reply-form button {
+button {
     width: 100%;
+    padding: 8px;
+}
+
+.thumb {
+    max-width: 100%;
+    height: auto;
 }
 
 .reply {
     font-size: 13px;
+    margin-left: 10px;
+}
+
+.board-list li {
+    margin-bottom: 10px;
 }
 
 }
