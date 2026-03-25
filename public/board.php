@@ -1,8 +1,8 @@
 <?php
-$config=require '../app/config.php';
+require '../app/storage/index.php';
 require '../app/functions.php';
 
-$board=$_GET['board'];
+$board=$_GET['board'] ?? 'test';
 
 // 글 작성
 if($_POST && !isset($_POST['reply_id'])){
@@ -11,13 +11,18 @@ if($_POST && !isset($_POST['reply_id'])){
 
   if(isset($_FILES['image']) && $_FILES['image']['tmp_name']){
     $filename = time().'_'.basename($_FILES['image']['name']);
-    $target = "uploads/".$filename;
+
+    $uploadDir = __DIR__.'/uploads/';
+    $thumbDir = __DIR__.'/thumbs/';
+
+    if(!is_dir($uploadDir)) mkdir($uploadDir,0777,true);
+    if(!is_dir($thumbDir)) mkdir($thumbDir,0777,true);
+
+    $target = $uploadDir.$filename;
 
     move_uploaded_file($_FILES['image']['tmp_name'], $target);
 
-    // 썸네일 생성
-    $thumb = "thumbs/".$filename;
-    makeThumb($target, $thumb, 200);
+    makeThumb($target, $thumbDir.$filename, 200);
 
     $imagePath = $filename;
   }
@@ -50,43 +55,33 @@ $posts=getPosts($board);
 
 <h2>/<?= htmlspecialchars($board) ?></h2>
 
-<form method="POST" enctype="multipart/form-data" class="post-form">
-<textarea name="content" placeholder="내용"></textarea>
+<form method="POST" enctype="multipart/form-data">
+<textarea name="content"></textarea>
 <input type="file" name="image">
 <button>작성</button>
 </form>
 
 <?php foreach($posts as $p): ?>
-<div class="post">
+<div class="post" id="post<?= $p['id'] ?>">
 
-<div class="post-header">
-<a href="/<?= $board ?>#post<?= $p['id'] ?>">
-No.<?= $p['id'] ?>
-</a>
-</div>
+<a href="#post<?= $p['id'] ?>">No.<?= $p['id'] ?></a>
 
-<div class="post-content">
-<?= nl2br(htmlspecialchars($p['content'])) ?>
-</div>
+<div><?= nl2br(htmlspecialchars($p['content'])) ?></div>
 
-<?php if($p['image']): ?>
-<div class="image-box">
+<?php if(!empty($p['image'])): ?>
 <a href="/uploads/<?= $p['image'] ?>" target="_blank">
-<img src="/thumbs/<?= $p['image'] ?>">
+<img src="/thumbs/<?= $p['image'] ?>" class="thumb">
 </a>
-</div>
 <?php endif; ?>
 
-<form method="POST" class="reply-form">
+<form method="POST">
 <input type="hidden" name="reply_id" value="<?= $p['id'] ?>">
-<input name="reply" placeholder="댓글">
-<button>답글</button>
+<input name="reply">
+<button>댓글</button>
 </form>
 
-<?php foreach($p['replies'] as $r): ?>
-<div class="reply">
-<?= htmlspecialchars($r['content']) ?>
-</div>
+<?php foreach(getReplies($p['id']) as $r): ?>
+<div class="reply"><?= htmlspecialchars($r['content']) ?></div>
 <?php endforeach; ?>
 
 </div>
