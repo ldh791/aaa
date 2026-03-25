@@ -1,0 +1,33 @@
+@media (max-width: 768px) {
+
+.container {
+    width: 95%;
+    margin: 10px auto;
+}
+
+.board-title {
+    font-size: 20px;
+}
+
+.post {
+    padding: 10px;
+}
+
+.post-form textarea {
+    height: 60px;
+}
+
+.reply-form input {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.reply-form button {
+    width: 100%;
+}
+
+.reply {
+    font-size: 13px;
+}
+
+}
