@@ -2,21 +2,20 @@
 
 require_once "../app/functions.php";
 
-$text = $_POST['text'];
+$text = $_POST['text'] ?? "";
 
 $imageName = "";
 
 if(isset($_FILES['image']) && $_FILES['image']['name']){
 
-$uploadDir = "uploads/";
+$uploadDir = "../uploads/";
 
-if(!is_dir($uploadDir)){
-mkdir($uploadDir,0777,true);
-}
+$imageName = time()."_".basename($_FILES['image']['name']);
 
-$imageName = time()."_".$_FILES['image']['name'];
-
-move_uploaded_file($_FILES['image']['tmp_name'],$uploadDir.$imageName);
+move_uploaded_file(
+$_FILES['image']['tmp_name'],
+$uploadDir.$imageName
+);
 
 }
 
