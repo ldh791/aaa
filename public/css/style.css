@@ -60,3 +60,21 @@ p{
 font-size:14px;
 margin-top:6px;
 }
+
+
+@media (max-width:700px){
+
+.board{
+grid-template-columns:1fr;
+}
+
+.container{
+padding:10px;
+}
+
+.thumb{
+max-height:300px;
+object-fit:cover;
+}
+
+}
