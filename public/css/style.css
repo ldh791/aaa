@@ -1,14 +1,35 @@
 body{
+
 background:#efe6d3;
 font-family:sans-serif;
+margin:0;
+padding:20px;
+
+}
+
+.post-form{
+
+background:#e8d9c6;
+padding:15px;
+margin-bottom:20px;
+border-radius:6px;
+
+}
+
+textarea{
+
+width:100%;
+height:80px;
+margin-bottom:10px;
+
 }
 
 .board{
+
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
 gap:15px;
-max-width:1200px;
-margin:auto;
+
 }
 
 .card{
@@ -23,13 +44,7 @@ border:1px solid #d2bfa4;
 .thumb{
 
 width:100%;
-border-radius:4px;
 
-}
-
-a{
-text-decoration:none;
-color:#a00;
 }
 
 
