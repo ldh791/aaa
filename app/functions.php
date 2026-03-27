@@ -1,21 +1,33 @@
 <?php
 
-function data_path($board){
-    return __DIR__."/../data/".$board.".json";
+function loadPosts(){
+
+$file = __DIR__ . "/../data/b.json";
+
+if(!file_exists($file)){
+    return [];
 }
 
-function load_posts($board){
-    $file = data_path($board);
-    if(!file_exists($file)) return [];
-    return json_decode(file_get_contents($file),true);
+$json = file_get_contents($file);
+
+$data = json_decode($json,true);
+
+if(!$data){
+    $data = [];
 }
 
-function add_post($board,$content,$image){
-    $posts = load_posts($board);
-    $posts[]=[
-        "content"=>$content,
-        "image"=>$image,
-        "time"=>time()
-    ];
-    file_put_contents(data_path($board),json_encode($posts));
+return $data;
+
+}
+
+function savePost($post){
+
+$file = __DIR__ . "/../data/b.json";
+
+$posts = loadPosts();
+
+$posts[] = $post;
+
+file_put_contents($file,json_encode($posts));
+
 }
