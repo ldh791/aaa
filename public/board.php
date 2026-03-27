@@ -4,7 +4,6 @@ require_once "../app/functions.php";
 
 $posts = loadPosts();
 
-/* posts가 null이면 빈 배열 */
 if(!$posts){
     $posts = [];
 }
@@ -18,7 +17,7 @@ $posts = array_reverse($posts);
 <head>
 
 <meta charset="UTF-8">
-<title>Board</title>
+<title>Image Board</title>
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -28,7 +27,26 @@ $posts = array_reverse($posts);
 
 <h1>Image Board</h1>
 
-<a href="index.php">글쓰기</a>
+<!-- 글쓰기 폼 -->
+<div class="post-form">
+
+<form action="post.php" method="post" enctype="multipart/form-data">
+
+<textarea name="text" placeholder="내용 입력"></textarea>
+
+<br>
+
+<input type="file" name="image">
+
+<br>
+
+<button type="submit">글쓰기</button>
+
+</form>
+
+</div>
+
+<hr>
 
 <div class="board">
 
@@ -41,7 +59,9 @@ $posts = array_reverse($posts);
 <p>No.<?=$post['id']?></p>
 
 <?php if($post['image']){ ?>
+
 <img src="uploads/<?=$post['image']?>" class="thumb">
+
 <?php } ?>
 
 </a>
