@@ -12,37 +12,20 @@ final class PdoPostRepository implements PostRepositoryInterface
 
     public function __construct(array $config)
     {
-        $dsn = sprintf(
-            '%s:host=%s;port=%s;dbname=%s',
-            $config['db']['driver'],
-            $config['db']['host'],
-            $config['db']['port'],
-            $config['db']['database']
-        );
-
+        $dsn = sprintf('%s:host=%s;port=%s;dbname=%s', $config['db']['driver'], $config['db']['host'], $config['db']['port'], $config['db']['database']);
         $this->pdo = new PDO($dsn, $config['db']['username'], $config['db']['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
     }
 
-    public function getThreads(string $boardKey): array
-    {
-        throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.');
-    }
-
-    public function findThread(string $boardKey, string $threadId): ?array
-    {
-        throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.');
-    }
-
-    public function createThread(string $boardKey, array $payload): string
-    {
-        throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.');
-    }
-
-    public function createReply(string $boardKey, string $threadId, array $payload): bool
-    {
-        throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.');
-    }
+    public function getThreads(string $boardKey): array { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function findThread(string $boardKey, string $threadId): ?array { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function createThread(string $boardKey, array $payload): string { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function createReply(string $boardKey, string $threadId, array $payload): bool { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function updateThread(string $boardKey, string $threadId, array $payload): bool { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function deleteThread(string $boardKey, string $threadId): bool { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function updateReply(string $boardKey, string $threadId, string $replyId, array $payload): bool { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function deleteReply(string $boardKey, string $threadId, string $replyId): bool { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
+    public function search(array $filters): array { throw new RuntimeException('PDO repository is prepared for later migration, but not enabled in this test build.'); }
 }

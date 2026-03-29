@@ -13,17 +13,20 @@ final class PostAction
         $isReply = query_value('thread') !== '';
         $threadId = query_value('thread');
 
-        $name = text_limit(posted_value('name') ?: '익명', 30);
+        $name = text_limit(posted_value('name') ?: (auth_user()['username'] ?? '익명'), 30);
         $subject = text_limit(posted_value('subject'), 80);
         $comment = text_limit(posted_value('comment'), 5000);
+        $postPassword = posted_value('post_password');
 
         $errors = [];
         if (!$isReply && $subject === '' && $comment === '' && empty($_FILES['image']['name'])) {
             $errors[] = '새 스레드는 제목, 내용, 이미지 중 하나는 있어야 합니다.';
         }
-
         if ($isReply && $comment === '' && empty($_FILES['image']['name'])) {
             $errors[] = '답글은 내용이나 이미지가 필요합니다.';
+        }
+        if ($postPassword === '' || strlen($postPassword) < 4) {
+            $errors[] = '게시물 비밀번호는 4자 이상 입력해주세요.';
         }
 
         $upload = $this->handleUpload($_FILES['image'] ?? null, $errors);
@@ -33,12 +36,16 @@ final class PostAction
             redirect($isReply ? '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId) : '/board.php?board=' . rawurlencode($boardKey));
         }
 
+        $auth = auth_user();
         $payload = [
             'name' => $name,
             'subject' => $subject,
             'comment' => $comment,
             'image' => $upload['stored_name'],
             'image_original_name' => $upload['original_name'],
+            'password_hash' => password_hash($postPassword, PASSWORD_DEFAULT),
+            'user_id' => $auth['id'] ?? null,
+            'username' => $auth['username'] ?? null,
             'created_at' => (new \DateTimeImmutable())->format(DATE_ATOM),
         ];
 

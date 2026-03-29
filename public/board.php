@@ -7,6 +7,7 @@ $board = board_or_404($boardKey);
 $threads = repository()->getThreads($boardKey);
 $flash = flash_get();
 $config = app_config();
+$auth = auth_user();
 ?>
 <!doctype html>
 <html lang="ko">
@@ -26,7 +27,10 @@ $config = app_config();
             <h1>/<?= e($boardKey) ?>/ <?= e($board['title']) ?></h1>
             <p><?= e($board['subtitle']) ?></p>
         </div>
-        <button type="button" class="button-secondary mobile-toggle" data-toggle-form>새 스레드</button>
+        <div class="topbar-actions">
+            <a class="button-secondary" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
+            <button type="button" class="button-secondary mobile-toggle" data-toggle-form>새 스레드</button>
+        </div>
     </header>
 
     <?php if ($flash): ?>
@@ -37,12 +41,12 @@ $config = app_config();
         <aside class="panel glass-card compose-panel" data-form-panel>
             <div class="panel-header">
                 <h2>새 스레드 만들기</h2>
-                <p>제목, 내용, 이미지 중 하나는 필요합니다.</p>
+                <p>제목, 내용, 이미지 중 하나는 필요하고, 수정/삭제용 비밀번호도 필요합니다.</p>
             </div>
             <form action="/post.php?board=<?= e($boardKey) ?>" method="post" enctype="multipart/form-data" class="stack-form">
                 <label>
                     <span>이름</span>
-                    <input type="text" name="name" maxlength="30" placeholder="익명">
+                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>">
                 </label>
                 <label>
                     <span>제목</span>
@@ -55,6 +59,10 @@ $config = app_config();
                 <label>
                     <span>이미지</span>
                     <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                </label>
+                <label>
+                    <span>게시물 비밀번호</span>
+                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용">
                 </label>
                 <button class="button-primary" type="submit">스레드 등록</button>
             </form>
@@ -69,7 +77,7 @@ $config = app_config();
             <?php endif; ?>
 
             <?php foreach ($threads as $thread): ?>
-                <article class="thread-card glass-card">
+                <article class="thread-card glass-card" id="post-<?= e($thread['id']) ?>">
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
                         <p>
@@ -102,7 +110,7 @@ $config = app_config();
                     <?php if (!empty($thread['replies'])): ?>
                         <div class="reply-preview-list">
                             <?php foreach (array_slice(array_reverse($thread['replies']), 0, 2) as $reply): ?>
-                                <div class="reply-preview">
+                                <div class="reply-preview" id="post-<?= e($reply['id']) ?>">
                                     <p><strong><?= e($reply['name']) ?></strong> · No.<?= e($reply['id']) ?> · <?= e(render_time($reply['created_at'])) ?></p>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
                                 </div>

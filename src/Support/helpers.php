@@ -2,8 +2,10 @@
 declare(strict_types=1);
 
 use App\Repository\JsonPostRepository;
+use App\Repository\JsonUserRepository;
 use App\Repository\PdoPostRepository;
 use App\Repository\PostRepositoryInterface;
+use App\Repository\UserRepositoryInterface;
 
 function app_config(): array
 {
@@ -37,6 +39,11 @@ function ensure_storage(array $config): void
             file_put_contents($file, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     }
+
+    $usersFile = $config['storage_path'] . '/data/users.json';
+    if (!is_file($usersFile)) {
+        file_put_contents($usersFile, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
 }
 
 function board_file_path(string $boardKey, ?array $config = null): string
@@ -61,6 +68,35 @@ function repository(): PostRepositoryInterface
 
     $repository = new JsonPostRepository($config);
     return $repository;
+}
+
+function user_repository(): UserRepositoryInterface
+{
+    static $repository;
+    if ($repository instanceof UserRepositoryInterface) {
+        return $repository;
+    }
+
+    $repository = new JsonUserRepository(app_config());
+    return $repository;
+}
+
+function raw_repository_find_thread(string $boardKey, string $threadId): ?array
+{
+    $path = board_file_path($boardKey);
+    if (!is_file($path)) {
+        return null;
+    }
+    $decoded = json_decode((string) file_get_contents($path), true);
+    if (!is_array($decoded)) {
+        return null;
+    }
+    foreach ($decoded as $thread) {
+        if (($thread['id'] ?? '') === $threadId) {
+            return $thread;
+        }
+    }
+    return null;
 }
 
 function e(?string $value): string
@@ -119,6 +155,15 @@ function flash_get(): ?array
     return $flash;
 }
 
+function auth_user(): ?array
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    $auth = $_SESSION['auth'] ?? null;
+    return is_array($auth) ? $auth : null;
+}
+
 function render_time(string $isoDate): string
 {
     try {
@@ -139,7 +184,6 @@ function format_bytes_label(int $bytes): string
 {
     return number_format($bytes / 1024 / 1024, 0) . 'MB';
 }
-
 
 function text_limit(string $value, int $length): string
 {
@@ -164,4 +208,15 @@ function text_preview(string $value, int $length): string
 function public_upload_url(string $fileName): string
 {
     return '/uploads/' . rawurlencode($fileName);
+}
+
+function delete_upload_file(string $fileName): void
+{
+    if ($fileName === '') {
+        return;
+    }
+    $path = app_config()['upload_path'] . '/' . basename($fileName);
+    if (is_file($path)) {
+        @unlink($path);
+    }
 }
