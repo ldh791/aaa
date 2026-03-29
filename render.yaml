@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: momoboard-test
+    env: docker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_TIMEZONE
+        value: Asia/Seoul
+      - key: DATA_DRIVER
+        value: json
+      - key: MAX_UPLOAD_MB
+        value: 5
