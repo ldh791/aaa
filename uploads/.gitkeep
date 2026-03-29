@@ -1,1 +1,0 @@
-mkdir("../uploads",0777,true);
