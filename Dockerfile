@@ -7,9 +7,11 @@ RUN a2enmod rewrite headers \
 
 COPY . /var/www/html/
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/public/uploads \
+RUN mkdir -p /var/www/html/storage /var/www/html/storage/data/boards /var/www/html/storage/logs /var/www/html/public/uploads \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/public/uploads \
     && find /var/www/html -type d -exec chmod 755 {} \; \
-    && find /var/www/html -type f -exec chmod 644 {} \;
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && chmod -R 775 /var/www/html/storage /var/www/html/public/uploads
 
 RUN cat <<'APACHE_CONF' > /etc/apache2/sites-available/000-default.conf
 <VirtualHost *:80>
