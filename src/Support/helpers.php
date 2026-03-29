@@ -220,3 +220,67 @@ function delete_upload_file(string $fileName): void
         @unlink($path);
     }
 }
+
+function menu_links(): array
+{
+    $config = app_config();
+    $links = [
+        ['label' => '홈', 'href' => '/'],
+        ['label' => '전체 검색', 'href' => '/search.php'],
+    ];
+
+    foreach ($config['boards'] as $boardKey => $board) {
+        $links[] = [
+            'label' => '/' . $boardKey . '/ ' . $board['title'],
+            'href' => '/board.php?board=' . rawurlencode((string) $boardKey),
+        ];
+    }
+
+    return $links;
+}
+
+function current_path(): string
+{
+    return strtok((string) ($_SERVER['REQUEST_URI'] ?? '/'), '?') ?: '/';
+}
+
+function render_site_menu(?string $currentPath = null): void
+{
+    $currentPath ??= current_path();
+    $auth = auth_user();
+    $links = menu_links();
+    ?>
+    <section class="site-menu-wrap">
+        <button type="button" class="button-secondary site-menu-toggle" data-menu-toggle aria-expanded="false">메뉴</button>
+        <nav class="site-menu glass-card" data-menu-panel>
+            <div class="site-menu-head">
+                <div>
+                    <p class="eyebrow">Menu</p>
+                    <strong>빠른 이동</strong>
+                </div>
+                <button type="button" class="button-secondary menu-collapse-button" data-menu-collapse aria-expanded="true">접기</button>
+            </div>
+            <div class="site-menu-body">
+                <div class="site-menu-links">
+                    <?php foreach ($links as $link): ?>
+                        <?php $isCurrent = str_starts_with($link['href'], $currentPath) && $currentPath !== '/'; ?>
+                        <a class="site-menu-link<?= $isCurrent ? ' is-active' : '' ?>" href="<?= e($link['href']) ?>"><?= e($link['label']) ?></a>
+                    <?php endforeach; ?>
+                </div>
+                <div class="site-menu-auth">
+                    <?php if ($auth): ?>
+                        <span class="site-menu-user">@<?= e($auth['username']) ?></span>
+                        <form action="/auth.php" method="post" class="inline-form">
+                            <input type="hidden" name="action" value="logout">
+                            <button class="button-secondary menu-auth-button" type="submit">로그아웃</button>
+                        </form>
+                    <?php else: ?>
+                        <a class="button-secondary menu-auth-button" href="/login.php">로그인</a>
+                        <a class="button-secondary menu-auth-button" href="/register.php">회원가입</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </nav>
+    </section>
+    <?php
+}

@@ -14,9 +14,12 @@ $auth = auth_user();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($config['app_name']) ?></title>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-home">
 <div class="page-shell">
+    <?php render_site_menu('/'); ?>
+
     <header class="hero glass-card">
         <div>
             <p class="eyebrow">Cute imageboard for Render test</p>
@@ -27,7 +30,7 @@ $auth = auth_user();
             <a href="/search.php"><span>검색</span></a>
             <?php if ($auth): ?>
                 <span>@<?= e($auth['username']) ?></span>
-                <form action="/auth.php" method="post"><input type="hidden" name="action" value="logout"><button class="button-secondary" type="submit">로그아웃</button></form>
+                <form action="/auth.php" method="post" class="inline-form"><input type="hidden" name="action" value="logout"><button class="button-secondary hero-auth-button" type="submit">로그아웃</button></form>
             <?php else: ?>
                 <a href="/login.php"><span>로그인</span></a>
                 <a href="/register.php"><span>회원가입</span></a>

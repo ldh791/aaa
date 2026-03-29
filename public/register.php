@@ -11,9 +11,12 @@ $flash = flash_get();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>회원가입 - <?= e($config['app_name']) ?></title>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-home">
 <div class="page-shell compact-shell">
+    <?php render_site_menu('/register.php'); ?>
+
     <section class="panel glass-card auth-card">
         <p class="eyebrow">Register</p>
         <h1>회원가입</h1>

@@ -20,6 +20,8 @@ $auth = auth_user();
 </head>
 <body class="theme-board accent-<?= e($board['accent']) ?>">
 <div class="page-shell">
+    <?php render_site_menu('/board.php'); ?>
+
     <header class="topbar glass-card">
         <a class="home-link" href="/">← 홈</a>
         <div>
@@ -62,7 +64,7 @@ $auth = auth_user();
                 </label>
                 <label>
                     <span>게시물 비밀번호</span>
-                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용">
+                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')">
                 </label>
                 <button class="button-primary" type="submit">스레드 등록</button>
             </form>
@@ -77,7 +79,7 @@ $auth = auth_user();
             <?php endif; ?>
 
             <?php foreach ($threads as $thread): ?>
-                <article class="thread-card glass-card" id="post-<?= e($thread['id']) ?>">
+                <article class="thread-card glass-card">
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
                         <p>
@@ -110,7 +112,7 @@ $auth = auth_user();
                     <?php if (!empty($thread['replies'])): ?>
                         <div class="reply-preview-list">
                             <?php foreach (array_slice(array_reverse($thread['replies']), 0, 2) as $reply): ?>
-                                <div class="reply-preview" id="post-<?= e($reply['id']) ?>">
+                                <div class="reply-preview">
                                     <p><strong><?= e($reply['name']) ?></strong> · No.<?= e($reply['id']) ?> · <?= e(render_time($reply['created_at'])) ?></p>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
                                 </div>

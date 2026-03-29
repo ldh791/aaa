@@ -24,9 +24,12 @@ $results = $hasSearch ? repository()->search($filters) : [];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>검색 - <?= e($config['app_name']) ?></title>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-home">
 <div class="page-shell">
+    <?php render_site_menu('/search.php'); ?>
+
     <header class="topbar glass-card">
         <a class="home-link" href="/">← 홈</a>
         <div>
