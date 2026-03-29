@@ -52,7 +52,7 @@ $auth = auth_user();
             <div class="thread-meta">
                 <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
                 <p>
-                    <strong><?= e($thread['name']) ?></strong>
+                    <?= render_author_html($thread) ?>
                     <span>No.<?= e($thread['id']) ?></span>
                     <span><?= e(render_time($thread['created_at'])) ?></span>
                 </p>
@@ -128,7 +128,7 @@ $auth = auth_user();
             <article class="reply-card glass-card" id="post-<?= e($reply['id']) ?>">
                 <div class="thread-meta">
                     <p>
-                        <strong><?= e($reply['name']) ?></strong>
+                        <?= render_author_html($reply) ?>
                         <span>No.<?= e($reply['id']) ?></span>
                         <span><?= e(render_time($reply['created_at'])) ?></span>
                     </p>

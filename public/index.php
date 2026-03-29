@@ -29,12 +29,11 @@ $auth = auth_user();
         <div class="hero-badges">
             <a href="/search.php"><span>검색</span></a>
             <?php if ($auth): ?>
-                <span>@<?= e($auth['username']) ?></span>
+                <span class="author-chip is-member"><strong>@<?= e($auth['username']) ?></strong><span class="member-badge" title="회원 계정">✔</span></span>
                 <form action="/auth.php" method="post" class="inline-form"><input type="hidden" name="action" value="logout"><button class="button-secondary hero-auth-button" type="submit">로그아웃</button></form>
             <?php else: ?>
                 <a href="/login.php"><span>로그인</span></a>
-                <a href="/register.php"><span>회원가입</span></a>
-            <?php endif; ?>
+                            <?php endif; ?>
         </div>
     </header>
 

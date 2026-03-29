@@ -244,6 +244,22 @@ function current_path(): string
     return strtok((string) ($_SERVER['REQUEST_URI'] ?? '/'), '?') ?: '/';
 }
 
+function is_registered_post(array $post): bool
+{
+    return !empty($post['username']) || !empty($post['user_id']);
+}
+
+function render_author_html(array $post): string
+{
+    $name = e((string) ($post['name'] ?? '익명'));
+    if (!is_registered_post($post)) {
+        return '<strong>' . $name . '</strong>';
+    }
+
+    $username = e((string) ($post['username'] ?? $post['name'] ?? 'member'));
+    return '<span class="author-chip is-member"><strong>' . $name . '</strong><span class="member-badge" title="회원 계정">✔</span><span class="member-handle">@' . $username . '</span></span>';
+}
+
 function render_site_menu(?string $currentPath = null): void
 {
     $currentPath ??= current_path();
@@ -251,7 +267,9 @@ function render_site_menu(?string $currentPath = null): void
     $links = menu_links();
     ?>
     <section class="site-menu-wrap">
-        <button type="button" class="button-secondary site-menu-toggle" data-menu-toggle aria-expanded="false">메뉴</button>
+        <button type="button" class="site-menu-toggle" data-menu-toggle aria-expanded="false" aria-label="메뉴 열기">
+            <span></span><span></span><span></span>
+        </button>
         <nav class="site-menu glass-card" data-menu-panel>
             <div class="site-menu-head">
                 <div>
@@ -269,7 +287,7 @@ function render_site_menu(?string $currentPath = null): void
                 </div>
                 <div class="site-menu-auth">
                     <?php if ($auth): ?>
-                        <span class="site-menu-user">@<?= e($auth['username']) ?></span>
+                        <span class="site-menu-user">@<?= e($auth['username']) ?><span class="member-badge" title="회원 계정">✔</span></span>
                         <form action="/auth.php" method="post" class="inline-form">
                             <input type="hidden" name="action" value="logout">
                             <button class="button-secondary menu-auth-button" type="submit">로그아웃</button>

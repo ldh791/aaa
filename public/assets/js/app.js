@@ -16,23 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuCollapse = document.querySelector('[data-menu-collapse]');
 
   if (menuPanel) {
-    const applyMenuState = () => {
+    const syncMenuState = () => {
       if (window.innerWidth <= 720) {
         menuPanel.classList.remove('is-collapsed');
-        if (!menuPanel.classList.contains('is-open')) {
-          menuPanel.classList.remove('is-open');
-        }
+        menuPanel.classList.remove('is-open');
       } else {
         menuPanel.classList.add('is-open');
       }
+      if (menuToggle) {
+        menuToggle.setAttribute('aria-expanded', menuPanel.classList.contains('is-open') ? 'true' : 'false');
+      }
     };
 
-    applyMenuState();
-    window.addEventListener('resize', applyMenuState);
+    syncMenuState();
+    window.addEventListener('resize', syncMenuState);
 
     if (menuToggle) {
       menuToggle.addEventListener('click', () => {
-        menuPanel.classList.toggle('is-open');
+        if (window.innerWidth <= 720) {
+          menuPanel.classList.toggle('is-open');
+        } else {
+          menuPanel.classList.toggle('is-collapsed');
+          menuPanel.classList.add('is-open');
+        }
         menuToggle.setAttribute('aria-expanded', menuPanel.classList.contains('is-open') ? 'true' : 'false');
       });
     }
@@ -40,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuCollapse) {
       menuCollapse.addEventListener('click', () => {
         menuPanel.classList.toggle('is-collapsed');
-        menuCollapse.setAttribute('aria-expanded', menuPanel.classList.contains('is-collapsed') ? 'false' : 'true');
       });
     }
   }
