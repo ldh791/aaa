@@ -12,7 +12,7 @@ final class JsonPostRepository implements PostRepositoryInterface
     public function getThreads(string $boardKey): array
     {
         $threads = $this->readBoard($boardKey);
-        usort($threads, static fn (array $a, array $b): int => strcmp($b['bumped_at'], $a['bumped_at']));
+        usort($threads, static fn (array $a, array $b): int => strcmp((string) ($b['bumped_at'] ?? ''), (string) ($a['bumped_at'] ?? '')));
         return array_map(fn (array $thread): array => $this->sanitizeThread($thread), $threads);
     }
 
@@ -56,14 +56,20 @@ final class JsonPostRepository implements PostRepositoryInterface
     public function createReply(string $boardKey, string $threadId, array $payload): bool
     {
         $threads = $this->readBoard($boardKey);
-
         foreach ($threads as &$thread) {
             if (($thread['id'] ?? '') !== $threadId) {
                 continue;
             }
 
+            $parentReplyId = (string) ($payload['parent_reply_id'] ?? '');
+            if ($parentReplyId !== '' && !$this->replyExists($thread, $parentReplyId)) {
+                $parentReplyId = '';
+            }
+
             $thread['replies'][] = [
                 'id' => $this->nextId(),
+                'thread_id' => $threadId,
+                'parent_reply_id' => $parentReplyId !== '' ? $parentReplyId : null,
                 'name' => $payload['name'],
                 'comment' => $payload['comment'],
                 'image' => $payload['image'],
@@ -155,7 +161,7 @@ final class JsonPostRepository implements PostRepositoryInterface
                 continue;
             }
             $before = count($thread['replies']);
-            $thread['replies'] = array_values(array_filter($thread['replies'], static fn (array $reply): bool => ($reply['id'] ?? '') !== $replyId));
+            $thread['replies'] = array_values(array_filter($thread['replies'], static fn (array $reply): bool => ($reply['id'] ?? '') !== $replyId && ($reply['parent_reply_id'] ?? '') !== $replyId));
             if ($before === count($thread['replies'])) {
                 return false;
             }
@@ -207,7 +213,8 @@ final class JsonPostRepository implements PostRepositoryInterface
     {
         $score = 0;
         if ($username !== '') {
-            if ($this->lower((string) ($post['name'] ?? '')) !== $this->lower($username)) {
+            $postUser = (string) (($post['username'] ?? '') !== '' ? $post['username'] : ($post['name'] ?? ''));
+            if ($this->lower($postUser) !== $this->lower($username)) {
                 return ['matched' => false, 'score' => 0];
             }
             $score += 4;
@@ -228,15 +235,15 @@ final class JsonPostRepository implements PostRepositoryInterface
 
             foreach ($tokens as $token) {
                 $matchedToken = false;
-                if (($field === 'all' || $field === 'title') && $isThread && $subject !== '' && $this->contains($subject, $token) !== false) {
+                if (($field === 'all' || $field === 'title') && $isThread && $subject !== '' && $this->contains($subject, $token)) {
                     $score += 6;
                     $matchedToken = true;
                 }
-                if (($field === 'all' || $field === 'comment') && $comment !== '' && $this->contains($comment, $token) !== false) {
+                if (($field === 'all' || $field === 'comment') && $comment !== '' && $this->contains($comment, $token)) {
                     $score += 3;
                     $matchedToken = true;
                 }
-                if ($field === 'all' && $fileName !== '' && $this->contains($fileName, $token) !== false) {
+                if ($field === 'all' && $fileName !== '' && $this->contains($fileName, $token)) {
                     $score += 2;
                     $matchedToken = true;
                 }
@@ -270,7 +277,6 @@ final class JsonPostRepository implements PostRepositoryInterface
             'score' => $score,
         ];
     }
-
 
     private function lower(string $value): string
     {
@@ -321,5 +327,15 @@ final class JsonPostRepository implements PostRepositoryInterface
     private function nextId(): string
     {
         return date('YmdHis') . bin2hex(random_bytes(3));
+    }
+
+    private function replyExists(array $thread, string $replyId): bool
+    {
+        foreach (($thread['replies'] ?? []) as $reply) {
+            if (($reply['id'] ?? '') === $replyId) {
+                return true;
+            }
+        }
+        return false;
     }
 }

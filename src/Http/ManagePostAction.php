@@ -12,6 +12,7 @@ final class ManagePostAction
         $threadId = query_value('thread_id');
         $replyId = query_value('reply_id');
         $action = posted_value('manage_action');
+        $returnTo = posted_value('return_to') ?: '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId);
 
         $thread = repository()->findThread($boardKey, $threadId);
         if ($thread === null) {
@@ -22,28 +23,28 @@ final class ManagePostAction
         $target = $replyId === '' ? $this->findThreadSecret($boardKey, $threadId) : $this->findReplySecret($boardKey, $threadId, $replyId);
         if ($target === null) {
             flash_set('error', '대상 게시물을 찾지 못했습니다.');
-            redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+            redirect($returnTo);
         }
 
         $password = posted_value('post_password');
         if ($password === '' || !password_verify($password, (string) ($target['password_hash'] ?? ''))) {
             flash_set('error', '게시물 비밀번호가 올바르지 않습니다.');
-            redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+            redirect($returnTo);
         }
 
         if ($action === 'delete') {
-            $this->deletePost($boardKey, $threadId, $replyId, $target);
+            $this->deletePost($boardKey, $threadId, $replyId, $target, $returnTo);
         }
 
         if ($action === 'edit') {
-            $this->editPost($boardKey, $threadId, $replyId, $target);
+            $this->editPost($boardKey, $threadId, $replyId, $target, $returnTo);
         }
 
         flash_set('error', '잘못된 요청입니다.');
-        redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+        redirect($returnTo);
     }
 
-    private function editPost(string $boardKey, string $threadId, string $replyId, array $target): never
+    private function editPost(string $boardKey, string $threadId, string $replyId, array $target, string $returnTo): never
     {
         $name = text_limit(posted_value('name') ?: '익명', 30);
         $subject = text_limit(posted_value('subject'), 80);
@@ -60,7 +61,7 @@ final class ManagePostAction
 
         if ($errors !== []) {
             flash_set('error', implode(' ', $errors));
-            redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+            redirect($returnTo);
         }
 
         $payload = [
@@ -73,7 +74,7 @@ final class ManagePostAction
         if ($newPassword !== '') {
             if (strlen($newPassword) < 4) {
                 flash_set('error', '새 게시물 비밀번호는 4자 이상이어야 합니다.');
-                redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+                redirect($returnTo);
             }
             $payload['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
         }
@@ -83,10 +84,10 @@ final class ManagePostAction
             : repository()->updateReply($boardKey, $threadId, $replyId, $payload);
 
         flash_set($ok ? 'success' : 'error', $ok ? '게시물이 수정되었습니다.' : '게시물 수정에 실패했습니다.');
-        redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+        redirect($returnTo);
     }
 
-    private function deletePost(string $boardKey, string $threadId, string $replyId, array $target): never
+    private function deletePost(string $boardKey, string $threadId, string $replyId, array $target, string $returnTo): never
     {
         if (!empty($target['image'])) {
             delete_upload_file((string) $target['image']);
@@ -100,13 +101,12 @@ final class ManagePostAction
         if ($replyId === '') {
             redirect('/board.php?board=' . rawurlencode($boardKey));
         }
-        redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+        redirect($returnTo);
     }
 
     private function findThreadSecret(string $boardKey, string $threadId): ?array
     {
-        $raw = raw_repository_find_thread($boardKey, $threadId);
-        return $raw;
+        return raw_repository_find_thread($boardKey, $threadId);
     }
 
     private function findReplySecret(string $boardKey, string $threadId, string $replyId): ?array

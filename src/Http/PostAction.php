@@ -17,6 +17,7 @@ final class PostAction
         $subject = text_limit(posted_value('subject'), 80);
         $comment = text_limit(posted_value('comment'), 5000);
         $postPassword = posted_value('post_password');
+        $parentReplyId = posted_value('parent_reply_id');
 
         $errors = [];
         if (!$isReply && $subject === '' && $comment === '' && empty($_FILES['image']['name'])) {
@@ -46,6 +47,7 @@ final class PostAction
             'password_hash' => password_hash($postPassword, PASSWORD_DEFAULT),
             'user_id' => $auth['id'] ?? null,
             'username' => $auth['username'] ?? null,
+            'parent_reply_id' => $isReply ? $parentReplyId : null,
             'created_at' => (new \DateTimeImmutable())->format(DATE_ATOM),
         ];
 

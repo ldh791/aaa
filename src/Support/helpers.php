@@ -244,61 +244,139 @@ function current_path(): string
     return strtok((string) ($_SERVER['REQUEST_URI'] ?? '/'), '?') ?: '/';
 }
 
-function is_registered_post(array $post): bool
-{
-    return !empty($post['username']) || !empty($post['user_id']);
-}
-
-function render_author_html(array $post): string
-{
-    $name = e((string) ($post['name'] ?? '익명'));
-    if (!is_registered_post($post)) {
-        return '<strong>' . $name . '</strong>';
-    }
-
-    $username = e((string) ($post['username'] ?? $post['name'] ?? 'member'));
-    return '<span class="author-chip is-member"><strong>' . $name . '</strong><span class="member-badge" title="회원 계정">✔</span><span class="member-handle">@' . $username . '</span></span>';
-}
-
 function render_site_menu(?string $currentPath = null): void
 {
     $currentPath ??= current_path();
+    $currentUri = (string) ($_SERVER['REQUEST_URI'] ?? $currentPath);
     $auth = auth_user();
     $links = menu_links();
     ?>
-    <section class="site-menu-wrap">
-        <button type="button" class="site-menu-toggle" data-menu-toggle aria-expanded="false" aria-label="메뉴 열기">
-            <span></span><span></span><span></span>
-        </button>
-        <nav class="site-menu glass-card" data-menu-panel>
-            <div class="site-menu-head">
-                <div>
-                    <p class="eyebrow">Menu</p>
-                    <strong>빠른 이동</strong>
-                </div>
-                <button type="button" class="button-secondary menu-collapse-button" data-menu-collapse aria-expanded="true">접기</button>
+    <button type="button" class="hamburger-button" data-menu-toggle aria-expanded="false" aria-controls="site-sidebar">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="sidebar-backdrop" data-menu-backdrop></div>
+    <aside id="site-sidebar" class="site-sidebar glass-card" data-menu-panel>
+        <div class="site-sidebar-head">
+            <div>
+                <p class="eyebrow">Menu</p>
+                <strong>빠른 이동</strong>
             </div>
-            <div class="site-menu-body">
-                <div class="site-menu-links">
-                    <?php foreach ($links as $link): ?>
-                        <?php $isCurrent = str_starts_with($link['href'], $currentPath) && $currentPath !== '/'; ?>
-                        <a class="site-menu-link<?= $isCurrent ? ' is-active' : '' ?>" href="<?= e($link['href']) ?>"><?= e($link['label']) ?></a>
-                    <?php endforeach; ?>
-                </div>
-                <div class="site-menu-auth">
-                    <?php if ($auth): ?>
-                        <span class="site-menu-user">@<?= e($auth['username']) ?><span class="member-badge" title="회원 계정">✔</span></span>
-                        <form action="/auth.php" method="post" class="inline-form">
-                            <input type="hidden" name="action" value="logout">
-                            <button class="button-secondary menu-auth-button" type="submit">로그아웃</button>
-                        </form>
-                    <?php else: ?>
-                        <a class="button-secondary menu-auth-button" href="/login.php">로그인</a>
-                        <a class="button-secondary menu-auth-button" href="/register.php">회원가입</a>
-                    <?php endif; ?>
-                </div>
-            </div>
+            <button type="button" class="button-secondary sidebar-collapse-button" data-menu-collapse aria-expanded="true">접기</button>
+        </div>
+        <nav class="site-sidebar-links">
+            <?php foreach ($links as $link): ?>
+                <?php $href = (string) $link['href']; $hrefPath = strtok($href, '?') ?: $href; $isCurrent = $currentUri === $href || ($hrefPath === $currentPath && strpos($href, '?') === false); ?>
+                <a class="site-sidebar-link<?= $isCurrent ? ' is-active' : '' ?>" href="<?= e($link['href']) ?>"><?= e($link['label']) ?></a>
+            <?php endforeach; ?>
         </nav>
-    </section>
+        <div class="site-sidebar-auth">
+            <?php if ($auth): ?>
+                <span class="site-sidebar-user">@<?= e($auth['username']) ?></span>
+                <form action="/auth.php" method="post" class="sidebar-form-block">
+                    <input type="hidden" name="action" value="logout">
+                    <button class="button-secondary sidebar-action-button" type="submit">로그아웃</button>
+                </form>
+            <?php else: ?>
+                <a class="button-secondary sidebar-action-button" href="/login.php">로그인</a>
+                <a class="button-secondary sidebar-action-button" href="/register.php">회원가입</a>
+            <?php endif; ?>
+        </div>
+    </aside>
     <?php
+}
+
+function is_member_post(array $post): bool
+{
+    return !empty($post['user_id']) || !empty($post['username']);
+}
+
+function member_badge_html(array $post): string
+{
+    if (!is_member_post($post)) {
+        return '';
+    }
+
+    return '<span class="member-badge" title="회원">✔</span>';
+}
+
+function reply_target_prefix(array $post): string
+{
+    return '>>' . ($post['id'] ?? '');
+}
+
+function board_manage_return_url(string $boardKey): string
+{
+    return '/board.php?board=' . rawurlencode($boardKey);
+}
+
+function thread_return_url(string $boardKey, string $threadId): string
+{
+    return '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId);
+}
+
+function render_post_actions(string $boardKey, string $threadId, array $post, bool $isReply, string $context = 'thread'): void
+{
+    $postId = (string) ($post['id'] ?? '');
+    $prefix = ($isReply ? 'reply' : 'thread') . '-' . $postId . '-' . $context;
+    $returnTo = $context === 'board' ? board_manage_return_url($boardKey) : thread_return_url($boardKey, $threadId);
+    ?>
+    <div class="post-actions-bar">
+        <?php if ($context === 'thread'): ?>
+            <button type="button" class="button-secondary post-action-button" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-text="<?= e(reply_target_prefix($post)) ?>">댓글</button>
+        <?php else: ?>
+            <a class="button-secondary post-action-button" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">댓글</a>
+        <?php endif; ?>
+        <div class="post-actions-right">
+            <button type="button" class="button-secondary post-action-button" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
+            <button type="button" class="button-secondary post-action-button danger-lite" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-delete">삭제</button>
+        </div>
+    </div>
+    <div class="manage-stack">
+        <section id="<?= e($prefix) ?>-edit" class="mini-manage-form is-collapsed" data-toggle-panel>
+            <h3><?= $isReply ? '댓글 수정' : '스레드 수정' ?></h3>
+            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
+                <input type="hidden" name="manage_action" value="edit">
+                <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
+                <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e((string) ($post['name'] ?? '')) ?>"></label>
+                <?php if (!$isReply): ?>
+                    <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
+                <?php endif; ?>
+                <label><span>내용</span><textarea name="comment" rows="<?= $isReply ? '4' : '5' ?>" maxlength="5000"><?= e((string) ($post['comment'] ?? '')) ?></textarea></label>
+                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
+                <label><span>새 비밀번호(선택)</span><input type="password" name="new_post_password"></label>
+                <button class="button-secondary" type="submit"><?= $isReply ? '댓글 수정' : '스레드 수정' ?></button>
+            </form>
+        </section>
+        <section id="<?= e($prefix) ?>-delete" class="mini-manage-form danger-form is-collapsed" data-toggle-panel>
+            <h3><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></h3>
+            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('<?= $isReply ? '댓글' : '스레드' ?>을 삭제할까요?');">
+                <input type="hidden" name="manage_action" value="delete">
+                <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
+                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
+                <button class="button-danger" type="submit"><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></button>
+            </form>
+        </section>
+    </div>
+    <?php
+}
+
+function build_reply_tree(array $replies): array
+{
+    $byParent = [];
+    foreach ($replies as $reply) {
+        $parent = (string) ($reply['parent_reply_id'] ?? '');
+        $byParent[$parent][] = $reply;
+    }
+
+    $walk = static function (string $parentId) use (&$walk, $byParent): array {
+        $items = $byParent[$parentId] ?? [];
+        $built = [];
+        foreach ($items as $item) {
+            $item['children'] = $walk((string) ($item['id'] ?? ''));
+            $built[] = $item;
+        }
+        return $built;
+    };
+
+    return $walk('');
 }

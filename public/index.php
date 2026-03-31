@@ -16,10 +16,9 @@ $auth = auth_user();
     <link rel="stylesheet" href="/assets/css/style.css">
     <script defer src="/assets/js/app.js"></script>
 </head>
-<body class="theme-home">
-<div class="page-shell">
-    <?php render_site_menu('/'); ?>
-
+<body class="theme-home sidebar-layout">
+<?php render_site_menu('/'); ?>
+<div class="page-shell page-shell-with-sidebar">
     <header class="hero glass-card">
         <div>
             <p class="eyebrow">Cute imageboard for Render test</p>
@@ -29,11 +28,11 @@ $auth = auth_user();
         <div class="hero-badges">
             <a href="/search.php"><span>검색</span></a>
             <?php if ($auth): ?>
-                <span class="author-chip is-member"><strong>@<?= e($auth['username']) ?></strong><span class="member-badge" title="회원 계정">✔</span></span>
+                <span>@<?= e($auth['username']) ?></span>
                 <form action="/auth.php" method="post" class="inline-form"><input type="hidden" name="action" value="logout"><button class="button-secondary hero-auth-button" type="submit">로그아웃</button></form>
             <?php else: ?>
                 <a href="/login.php"><span>로그인</span></a>
-                            <?php endif; ?>
+            <?php endif; ?>
         </div>
     </header>
 

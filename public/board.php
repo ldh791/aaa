@@ -18,10 +18,9 @@ $auth = auth_user();
     <link rel="stylesheet" href="/assets/css/style.css">
     <script defer src="/assets/js/app.js"></script>
 </head>
-<body class="theme-board accent-<?= e($board['accent']) ?>">
-<div class="page-shell">
-    <?php render_site_menu('/board.php'); ?>
-
+<body class="theme-board accent-<?= e($board['accent']) ?> sidebar-layout">
+<?php render_site_menu('/board.php'); ?>
+<div class="page-shell page-shell-with-sidebar">
     <header class="topbar glass-card">
         <a class="home-link" href="/">← 홈</a>
         <div>
@@ -83,7 +82,7 @@ $auth = auth_user();
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
                         <p>
-                            <?= render_author_html($thread) ?>
+                            <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
                             <span>No.<?= e($thread['id']) ?></span>
                             <span><?= e(render_time($thread['created_at'])) ?></span>
                         </p>
@@ -109,65 +108,16 @@ $auth = auth_user();
                         <a href="/thread.php?board=<?= e($boardKey) ?>&id=<?= e($thread['id']) ?>">스레드 보기</a>
                     </div>
 
-                    <div class="post-actions-bar post-actions-inline">
-                        <button type="button" class="button-secondary post-action-button" data-toggle-target="board-thread-edit-<?= e($thread['id']) ?>">수정</button>
-                        <button type="button" class="button-secondary post-action-button danger-lite" data-toggle-target="board-thread-delete-<?= e($thread['id']) ?>">삭제</button>
-                    </div>
-
-                    <div class="manage-stack">
-                        <section id="board-thread-edit-<?= e($thread['id']) ?>" class="mini-manage-form is-collapsed" data-toggle-panel>
-                            <h3>스레드 수정</h3>
-                            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($thread['id']) ?>" method="post" class="stack-form compact-form">
-                                <input type="hidden" name="manage_action" value="edit">
-                                <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e($thread['name']) ?>"></label>
-                                <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e($thread['subject']) ?>"></label>
-                                <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000"><?= e($thread['comment']) ?></textarea></label>
-                                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
-                                <label><span>새 비밀번호(선택)</span><input type="password" name="new_post_password"></label>
-                                <button class="button-secondary" type="submit">스레드 수정</button>
-                            </form>
-                        </section>
-                        <section id="board-thread-delete-<?= e($thread['id']) ?>" class="mini-manage-form danger-form is-collapsed" data-toggle-panel>
-                            <h3>스레드 삭제</h3>
-                            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($thread['id']) ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('스레드를 삭제할까요?');">
-                                <input type="hidden" name="manage_action" value="delete">
-                                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
-                                <button class="button-danger" type="submit">스레드 삭제</button>
-                            </form>
-                        </section>
-                    </div>
+                    <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'board'); ?>
 
                     <?php if (!empty($thread['replies'])): ?>
                         <div class="reply-preview-list">
                             <?php foreach (array_slice(array_reverse($thread['replies']), 0, 2) as $reply): ?>
                                 <div class="reply-preview">
-                                    <p><?= render_author_html($reply) ?> · No.<?= e($reply['id']) ?> · <?= e(render_time($reply['created_at'])) ?></p>
+                                    <p><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> · No.<?= e($reply['id']) ?> · <?= e(render_time($reply['created_at'])) ?></p>
+                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?> 에 대한 답글</p><?php endif; ?>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
-                                    <div class="post-actions-bar post-actions-inline compact-actions">
-                                        <button type="button" class="button-secondary post-action-button" data-toggle-target="board-reply-edit-<?= e($reply['id']) ?>">수정</button>
-                                        <button type="button" class="button-secondary post-action-button danger-lite" data-toggle-target="board-reply-delete-<?= e($reply['id']) ?>">삭제</button>
-                                    </div>
-                                    <div class="manage-stack">
-                                        <section id="board-reply-edit-<?= e($reply['id']) ?>" class="mini-manage-form is-collapsed" data-toggle-panel>
-                                            <h3>댓글 수정</h3>
-                                            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($thread['id']) ?>&reply_id=<?= e($reply['id']) ?>" method="post" class="stack-form compact-form">
-                                                <input type="hidden" name="manage_action" value="edit">
-                                                <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e($reply['name']) ?>"></label>
-                                                <label><span>내용</span><textarea name="comment" rows="4" maxlength="5000"><?= e($reply['comment']) ?></textarea></label>
-                                                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
-                                                <label><span>새 비밀번호(선택)</span><input type="password" name="new_post_password"></label>
-                                                <button class="button-secondary" type="submit">댓글 수정</button>
-                                            </form>
-                                        </section>
-                                        <section id="board-reply-delete-<?= e($reply['id']) ?>" class="mini-manage-form danger-form is-collapsed" data-toggle-panel>
-                                            <h3>댓글 삭제</h3>
-                                            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($thread['id']) ?>&reply_id=<?= e($reply['id']) ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('댓글을 삭제할까요?');">
-                                                <input type="hidden" name="manage_action" value="delete">
-                                                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
-                                                <button class="button-danger" type="submit">댓글 삭제</button>
-                                            </form>
-                                        </section>
-                                    </div>
+                                    <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
