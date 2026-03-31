@@ -13,8 +13,8 @@ $flash = flash_get();
     <link rel="stylesheet" href="/assets/css/style.css">
     <script defer src="/assets/js/app.js"></script>
 </head>
-<body class="theme-home">
-<div class="page-shell compact-shell">
+<body class="theme-home sidebar-layout">
+<div class="page-shell page-shell-with-sidebar compact-shell">
     <?php render_site_menu('/login.php'); ?>
 
     <section class="panel glass-card auth-card">

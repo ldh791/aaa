@@ -14,23 +14,27 @@ if ($thread === null) {
 }
 
 $flash = flash_get();
-$config = app_config();
 $auth = auth_user();
 $replyTree = build_reply_tree($thread['replies'] ?? []);
+$replyCount = count($thread['replies'] ?? []);
 
 $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $boardKey, $threadId): void {
     $depthClass = 'reply-depth-' . min($depth, 4);
     ?>
     <article class="reply-card glass-card <?= e($depthClass) ?>" id="post-<?= e($reply['id']) ?>">
         <div class="thread-meta">
-            <p>
+            <p class="thread-subject-line">
                 <strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?>
-                <span>No.<?= e($reply['id']) ?></span>
-                <span><?= e(render_time($reply['created_at'])) ?></span>
+            </p>
+            <p class="thread-meta-line">
+                <span class="meta-left">
+                    <span>No.<?= e($reply['id']) ?></span>
+                    <span><?= e(render_time($reply['created_at'])) ?></span>
+                </span>
             </p>
         </div>
         <?php if (!empty($reply['parent_reply_id'])): ?>
-            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?> 에 대한 답글</p>
+            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p>
         <?php endif; ?>
         <?php if (!empty($reply['image'])): ?>
             <a class="detail-image-link" href="<?= e(public_upload_url($reply['image'])) ?>" target="_blank" rel="noreferrer">
@@ -74,8 +78,8 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             <p><?= e($board['subtitle']) ?></p>
         </div>
         <div class="topbar-actions">
-            <a class="button-secondary" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e($thread['id']) ?>">번호로 찾기</a>
-            <button type="button" class="button-secondary mobile-toggle" data-toggle-form>답글 달기</button>
+            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e($thread['id']) ?>">번호로 찾기</a>
+            <button type="button" class="button-secondary mobile-toggle" data-toggle-form>답글 작성</button>
         </div>
     </header>
 
@@ -87,10 +91,13 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
         <section class="thread-card glass-card thread-detail" id="post-<?= e($thread['id']) ?>">
             <div class="thread-meta">
                 <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
-                <p>
-                    <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
-                    <span>No.<?= e($thread['id']) ?></span>
-                    <span><?= e(render_time($thread['created_at'])) ?></span>
+                <p class="thread-meta-line">
+                    <span class="meta-left">
+                        <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
+                        <span>No.<?= e($thread['id']) ?></span>
+                        <span><?= e(render_time($thread['created_at'])) ?></span>
+                    </span>
+                    <span class="meta-right"><span class="count-chip">댓글 <?= e((string) $replyCount) ?></span></span>
                 </p>
             </div>
             <?php if (!empty($thread['image'])): ?>
@@ -110,6 +117,13 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <h2>답글 작성</h2>
                 <p>내용이나 이미지를 넣고, 수정/삭제용 비밀번호도 입력해주세요.</p>
             </div>
+            <div class="reply-context is-collapsed" data-reply-context>
+                <div>
+                    <strong data-reply-context-label>댓글에 답글 작성 중</strong>
+                    <p>선택한 댓글 아래에 답글로 연결됩니다.</p>
+                </div>
+                <button type="button" class="reply-context-clear" data-reply-context-clear>해제</button>
+            </div>
             <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($thread['id']) ?>" method="post" enctype="multipart/form-data" class="stack-form">
                 <input type="hidden" name="parent_reply_id" id="reply-parent-id" value="">
                 <label>
@@ -118,7 +132,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 </label>
                 <label>
                     <span>내용</span>
-                    <textarea id="reply-comment-box" name="comment" rows="6" maxlength="5000" placeholder=">><?= e($thread['id']) ?> 에 답글 달기"></textarea>
+                    <textarea id="reply-comment-box" name="comment" rows="6" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea>
                 </label>
                 <label>
                     <span>이미지</span>

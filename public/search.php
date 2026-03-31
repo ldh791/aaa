@@ -26,8 +26,8 @@ $results = $hasSearch ? repository()->search($filters) : [];
     <link rel="stylesheet" href="/assets/css/style.css">
     <script defer src="/assets/js/app.js"></script>
 </head>
-<body class="theme-home">
-<div class="page-shell">
+<body class="theme-home sidebar-layout">
+<div class="page-shell page-shell-with-sidebar">
     <?php render_site_menu('/search.php'); ?>
 
     <header class="topbar glass-card">

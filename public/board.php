@@ -6,7 +6,6 @@ $boardKey = query_value('board') ?: 'b';
 $board = board_or_404($boardKey);
 $threads = repository()->getThreads($boardKey);
 $flash = flash_get();
-$config = app_config();
 $auth = auth_user();
 ?>
 <!doctype html>
@@ -14,7 +13,7 @@ $auth = auth_user();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>/<?= e($boardKey) ?>/ - <?= e($config['app_name']) ?></title>
+    <title>/<?= e($boardKey) ?>/ - <?= e(app_config()['app_name']) ?></title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <script defer src="/assets/js/app.js"></script>
 </head>
@@ -29,7 +28,7 @@ $auth = auth_user();
             <p><?= e($board['subtitle']) ?></p>
         </div>
         <div class="topbar-actions">
-            <a class="button-secondary" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
+            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
             <button type="button" class="button-secondary mobile-toggle" data-toggle-form>새 스레드</button>
         </div>
     </header>
@@ -81,10 +80,13 @@ $auth = auth_user();
                 <article class="thread-card glass-card">
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
-                        <p>
-                            <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
-                            <span>No.<?= e($thread['id']) ?></span>
-                            <span><?= e(render_time($thread['created_at'])) ?></span>
+                        <p class="thread-meta-line">
+                            <span class="meta-left">
+                                <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
+                                <span>No.<?= e($thread['id']) ?></span>
+                                <span><?= e(render_time($thread['created_at'])) ?></span>
+                            </span>
+                            <span class="meta-right"><span class="count-chip">댓글 <?= e((string) $thread['reply_count']) ?></span></span>
                         </p>
                     </div>
 
@@ -104,8 +106,7 @@ $auth = auth_user();
                     </a>
 
                     <div class="reply-meta">
-                        <span>Replies <?= e((string) $thread['reply_count']) ?></span>
-                        <a href="/thread.php?board=<?= e($boardKey) ?>&id=<?= e($thread['id']) ?>">스레드 보기</a>
+                        <span class="thread-open-link-wrap"><a class="thread-open-link" href="/thread.php?board=<?= e($boardKey) ?>&id=<?= e($thread['id']) ?>">스레드 보기</a></span>
                     </div>
 
                     <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'board'); ?>
@@ -114,8 +115,12 @@ $auth = auth_user();
                         <div class="reply-preview-list">
                             <?php foreach (array_slice(array_reverse($thread['replies']), 0, 2) as $reply): ?>
                                 <div class="reply-preview">
-                                    <p><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> · No.<?= e($reply['id']) ?> · <?= e(render_time($reply['created_at'])) ?></p>
-                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?> 에 대한 답글</p><?php endif; ?>
+                                    <div class="thread-meta reply-preview-meta">
+                                        <p class="thread-meta-line">
+                                            <span class="meta-left"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> <span>No.<?= e($reply['id']) ?></span> <span><?= e(render_time($reply['created_at'])) ?></span></span>
+                                        </p>
+                                    </div>
+                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p><?php endif; ?>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
                                     <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                                 </div>

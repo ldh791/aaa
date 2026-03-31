@@ -251,17 +251,13 @@ function render_site_menu(?string $currentPath = null): void
     $auth = auth_user();
     $links = menu_links();
     ?>
-    <button type="button" class="hamburger-button" data-menu-toggle aria-expanded="false" aria-controls="site-sidebar">
+    <button type="button" class="hamburger-button" data-menu-toggle aria-expanded="true" aria-controls="site-sidebar">
         <span></span><span></span><span></span>
     </button>
     <div class="sidebar-backdrop" data-menu-backdrop></div>
     <aside id="site-sidebar" class="site-sidebar glass-card" data-menu-panel>
         <div class="site-sidebar-head">
-            <div>
-                <p class="eyebrow">Menu</p>
-                <strong>빠른 이동</strong>
-            </div>
-            <button type="button" class="button-secondary sidebar-collapse-button" data-menu-collapse aria-expanded="true">접기</button>
+            <button type="button" class="sidebar-collapse-button" data-menu-collapse aria-expanded="true" aria-label="메뉴 접기">&lt;</button>
         </div>
         <nav class="site-sidebar-links">
             <?php foreach ($links as $link): ?>
@@ -278,7 +274,7 @@ function render_site_menu(?string $currentPath = null): void
                 </form>
             <?php else: ?>
                 <a class="button-secondary sidebar-action-button" href="/login.php">로그인</a>
-                <a class="button-secondary sidebar-action-button" href="/register.php">회원가입</a>
+                <a class="sidebar-register-link" href="/register.php">회원가입</a>
             <?php endif; ?>
         </div>
     </aside>
@@ -321,14 +317,16 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     $returnTo = $context === 'board' ? board_manage_return_url($boardKey) : thread_return_url($boardKey, $threadId);
     ?>
     <div class="post-actions-bar">
-        <?php if ($context === 'thread'): ?>
-            <button type="button" class="button-secondary post-action-button" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-text="<?= e(reply_target_prefix($post)) ?>">댓글</button>
-        <?php else: ?>
-            <a class="button-secondary post-action-button" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">댓글</a>
-        <?php endif; ?>
+        <div class="post-actions-left">
+            <?php if ($context === 'thread'): ?>
+                <button type="button" class="post-inline-action post-reply-action" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-label="<?= e('댓글 No.' . $postId) ?>">↳ 댓글 달기</button>
+            <?php else: ?>
+                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">↳ 댓글 달기</a>
+            <?php endif; ?>
+        </div>
         <div class="post-actions-right">
-            <button type="button" class="button-secondary post-action-button" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
-            <button type="button" class="button-secondary post-action-button danger-lite" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-delete">삭제</button>
+            <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
+            <button type="button" class="post-inline-action post-delete-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-delete">삭제</button>
         </div>
     </div>
     <div class="manage-stack">

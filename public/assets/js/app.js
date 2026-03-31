@@ -22,15 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobile = window.innerWidth <= 960;
     body.classList.toggle('sidebar-mobile', mobile);
     body.classList.toggle('sidebar-desktop', !mobile);
-    if (!mobile) {
+
+    if (mobile) {
+      body.classList.remove('sidebar-collapsed');
+      menuPanel.classList.remove('is-collapsed');
+      menuPanel.classList.remove('is-open');
+      body.classList.remove('menu-open');
+      if (menuButton) menuButton.setAttribute('aria-expanded', 'false');
+    } else {
       menuPanel.classList.remove('is-open');
       body.classList.remove('menu-open');
       if (!body.classList.contains('sidebar-collapsed')) {
         menuPanel.classList.remove('is-collapsed');
+        if (menuButton) menuButton.setAttribute('aria-expanded', 'true');
       }
-    } else {
-      body.classList.remove('sidebar-collapsed');
-      menuPanel.classList.remove('is-collapsed');
     }
   };
 
@@ -100,24 +105,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const replyContext = document.querySelector('[data-reply-context]');
+  const replyContextLabel = document.querySelector('[data-reply-context-label]');
+  const replyContextClear = document.querySelector('[data-reply-context-clear]');
+  const parentField = document.querySelector('#reply-parent-id');
+
+  const clearReplyContext = () => {
+    if (replyContext) replyContext.classList.add('is-collapsed');
+    if (replyContextLabel) replyContextLabel.textContent = '댓글에 답글 작성 중';
+    if (parentField instanceof HTMLInputElement) {
+      parentField.value = '';
+    }
+  };
+
+  if (replyContextClear) {
+    replyContextClear.addEventListener('click', clearReplyContext);
+  }
+
   document.querySelectorAll('[data-quote-target]').forEach((button) => {
     button.addEventListener('click', () => {
       const selector = button.getAttribute('data-quote-target');
-      const text = button.getAttribute('data-quote-text') || '';
       const parentId = button.getAttribute('data-quote-parent') || '';
+      const label = button.getAttribute('data-quote-label') || `댓글 No.${parentId}`;
       const target = selector ? document.querySelector(selector) : null;
-      const parentField = document.querySelector('#reply-parent-id');
       if (!(target instanceof HTMLTextAreaElement)) return;
-      if (composePanel) composePanel.classList.add('is-open');
+
+      if (composePanel) {
+        composePanel.classList.add('is-open');
+      }
       if (parentField instanceof HTMLInputElement) {
         parentField.value = parentId;
       }
-      const quoteBlock = `${text}
-`;
-      target.value = target.value.trim() !== '' ? `${target.value.trim()}
-${quoteBlock}` : quoteBlock;
+      if (replyContext && replyContextLabel) {
+        replyContext.classList.remove('is-collapsed');
+        replyContextLabel.textContent = `${label}에 답글 작성 중`;
+      }
       target.focus();
-      target.setSelectionRange(target.value.length, target.value.length);
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
