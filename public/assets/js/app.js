@@ -112,9 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const clearReplyContext = () => {
     if (replyContext) replyContext.classList.add('is-collapsed');
-    if (replyContextLabel) replyContextLabel.textContent = '댓글에 답글 작성 중';
+    if (replyContextLabel) replyContextLabel.textContent = '일반 댓글 작성 중';
     if (parentField instanceof HTMLInputElement) {
       parentField.value = '';
+    }
+    const commentBox = document.querySelector('#reply-comment-box');
+    if (commentBox instanceof HTMLTextAreaElement) {
+      commentBox.dataset.replying = '';
     }
   };
 
@@ -126,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', () => {
       const selector = button.getAttribute('data-quote-target');
       const parentId = button.getAttribute('data-quote-parent') || '';
-      const label = button.getAttribute('data-quote-label') || `댓글 No.${parentId}`;
+      const label = button.getAttribute('data-quote-label') || `No.${parentId}`;
       const target = selector ? document.querySelector(selector) : null;
       if (!(target instanceof HTMLTextAreaElement)) return;
 
@@ -138,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (replyContext && replyContextLabel) {
         replyContext.classList.remove('is-collapsed');
-        replyContextLabel.textContent = `${label}에 답글 작성 중`;
+        replyContextLabel.textContent = `${label}에 답글 작성 중`; target.dataset.replying='1';
       }
       target.focus();
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });

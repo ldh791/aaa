@@ -274,7 +274,6 @@ function render_site_menu(?string $currentPath = null): void
                 </form>
             <?php else: ?>
                 <a class="button-secondary sidebar-action-button" href="/login.php">로그인</a>
-                <a class="sidebar-register-link" href="/register.php">회원가입</a>
             <?php endif; ?>
         </div>
     </aside>
@@ -319,9 +318,9 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     <div class="post-actions-bar">
         <div class="post-actions-left">
             <?php if ($context === 'thread'): ?>
-                <button type="button" class="post-inline-action post-reply-action" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-label="<?= e('댓글 No.' . $postId) ?>">↳ 댓글 달기</button>
+                <button type="button" class="post-inline-action post-reply-action" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-label="<?= e('No.' . $postId) ?>">↳ 답글</button>
             <?php else: ?>
-                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">↳ 댓글 달기</a>
+                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">↳ 답글</a>
             <?php endif; ?>
         </div>
         <div class="post-actions-right">
@@ -340,8 +339,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
                     <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
                 <?php endif; ?>
                 <label><span>내용</span><textarea name="comment" rows="<?= $isReply ? '4' : '5' ?>" maxlength="5000"><?= e((string) ($post['comment'] ?? '')) ?></textarea></label>
-                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
-                <label><span>새 비밀번호(선택)</span><input type="password" name="new_post_password"></label>
+                <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
                 <button class="button-secondary" type="submit"><?= $isReply ? '댓글 수정' : '스레드 수정' ?></button>
             </form>
         </section>
@@ -350,7 +348,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('<?= $isReply ? '댓글' : '스레드' ?>을 삭제할까요?');">
                 <input type="hidden" name="manage_action" value="delete">
                 <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                <label><span>현재 비밀번호</span><input type="password" name="post_password" required></label>
+                <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
                 <button class="button-danger" type="submit"><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></button>
             </form>
         </section>

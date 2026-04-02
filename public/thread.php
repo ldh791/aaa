@@ -118,11 +118,9 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <p>내용이나 이미지를 넣고, 수정/삭제용 비밀번호도 입력해주세요.</p>
             </div>
             <div class="reply-context is-collapsed" data-reply-context>
-                <div>
-                    <strong data-reply-context-label>댓글에 답글 작성 중</strong>
-                    <p>선택한 댓글 아래에 답글로 연결됩니다.</p>
-                </div>
-                <button type="button" class="reply-context-clear" data-reply-context-clear>해제</button>
+                <span class="reply-context-tag">답글</span>
+                <strong class="reply-context-label" data-reply-context-label>No.0000에 답글 작성 중</strong>
+                <button type="button" class="reply-context-clear" data-reply-context-clear>취소</button>
             </div>
             <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($thread['id']) ?>" method="post" enctype="multipart/form-data" class="stack-form">
                 <input type="hidden" name="parent_reply_id" id="reply-parent-id" value="">
@@ -133,6 +131,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <label>
                     <span>내용</span>
                     <textarea id="reply-comment-box" name="comment" rows="6" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea>
+                    <small class="field-hint">답글을 선택하지 않으면 일반 댓글로 등록됩니다.</small>
                 </label>
                 <label>
                     <span>이미지</span>
