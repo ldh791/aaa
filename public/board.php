@@ -29,7 +29,6 @@ $auth = auth_user();
         </div>
         <div class="topbar-actions">
             <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
-            <button type="button" class="button-secondary mobile-toggle" data-toggle-form>새 스레드</button>
         </div>
     </header>
 
@@ -37,8 +36,12 @@ $auth = auth_user();
         <div class="flash flash-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
     <?php endif; ?>
 
-    <div class="layout-two-column">
-        <aside class="panel glass-card compose-panel" data-form-panel>
+    <div class="board-toolbar">
+        <button type="button" class="header-chip-link board-compose-toggle" data-toggle-group="board-compose" data-toggle-target="board-compose-panel">새 스레드 작성</button>
+    </div>
+
+    <div class="layout-two-column layout-board-single">
+        <aside id="board-compose-panel" class="panel glass-card compose-panel is-collapsed compose-panel-inline" data-toggle-panel>
             <div class="panel-header">
                 <h2>새 스레드 만들기</h2>
                 <p>제목, 내용, 이미지 중 하나는 필요하고, 수정/삭제용 비밀번호도 필요합니다.</p>

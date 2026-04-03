@@ -309,18 +309,44 @@ function thread_return_url(string $boardKey, string $threadId): string
     return '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId);
 }
 
+function render_inline_reply_form(string $boardKey, string $threadId, string $parentReplyId = '', string $label = '댓글 작성'): void
+{
+    $auth = auth_user();
+    $formId = $parentReplyId !== '' ? 'reply-form-' . $parentReplyId : 'reply-form-thread';
+    ?>
+    <section id="<?= e($formId) ?>" class="inline-reply-form glass-card is-collapsed" data-toggle-panel>
+        <div class="inline-reply-form-head">
+            <strong><?= e($label) ?></strong>
+            <button type="button" class="reply-context-clear" data-toggle-target="<?= e($formId) ?>" data-toggle-group="reply-forms">닫기</button>
+        </div>
+        <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($threadId) ?>" method="post" enctype="multipart/form-data" class="stack-form compact-form">
+            <input type="hidden" name="parent_reply_id" value="<?= e($parentReplyId) ?>">
+            <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
+            <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
+            <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
+            <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')"></label>
+            <button class="button-primary" type="submit">등록</button>
+        </form>
+    </section>
+    <?php
+}
+
 function render_post_actions(string $boardKey, string $threadId, array $post, bool $isReply, string $context = 'thread'): void
 {
     $postId = (string) ($post['id'] ?? '');
     $prefix = ($isReply ? 'reply' : 'thread') . '-' . $postId . '-' . $context;
     $returnTo = $context === 'board' ? board_manage_return_url($boardKey) : thread_return_url($boardKey, $threadId);
+    $replyTarget = $context === 'thread'
+        ? ($isReply ? 'reply-form-' . $postId : 'reply-form-thread')
+        : null;
+    $replyLabel = $isReply ? '↳ 답글' : '↳ 댓글';
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
-            <?php if ($context === 'thread'): ?>
-                <button type="button" class="post-inline-action post-reply-action" data-quote-target="#reply-comment-box" data-quote-parent="<?= e($postId) ?>" data-quote-label="<?= e('No.' . $postId) ?>">↳ 답글</button>
+            <?php if ($context === 'thread' && $replyTarget !== null): ?>
+                <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
             <?php else: ?>
-                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>#reply-comment-box">↳ 답글</a>
+                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>"><?= e($replyLabel) ?></a>
             <?php endif; ?>
         </div>
         <div class="post-actions-right">
@@ -353,6 +379,9 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
+    <?php if ($context === 'thread'): ?>
+        <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $postId . '에 답글') : '새 댓글 작성'); ?>
+    <?php endif; ?>
     <?php
 }
 

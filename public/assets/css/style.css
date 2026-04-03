@@ -641,3 +641,167 @@ textarea { resize: vertical; min-height: 132px; }
     padding-bottom: 12px;
   }
 }
+
+/* thread + board refinement v3 */
+.layout-board-single {
+  grid-template-columns: 1fr;
+}
+.board-toolbar {
+  margin: 18px 0 14px;
+  display: flex;
+  justify-content: flex-start;
+}
+.board-compose-toggle {
+  cursor: pointer;
+}
+.compose-panel-inline {
+  margin-bottom: 22px;
+}
+.thread-single-column {
+  display: block;
+  max-width: 920px;
+  margin: 0 auto;
+}
+.thread-main-column {
+  display: grid;
+  gap: 22px;
+}
+.thread-detail-hero,
+.reply-card {
+  border-radius: 28px;
+}
+.thread-detail-hero {
+  padding: 28px 28px 24px;
+}
+.reply-section {
+  display: grid;
+  gap: 14px;
+}
+.reply-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.count-chip-accent {
+  background: linear-gradient(180deg, #f8d8e5 0%, #f2c0d4 100%);
+  border-color: rgba(179,139,164,.25);
+  color: #8e5a73;
+  box-shadow: 0 6px 14px rgba(216,161,188,.12);
+}
+.reply-list-embedded {
+  display: grid;
+  gap: 14px;
+}
+.reply-card {
+  padding: 18px 20px;
+  background: rgba(255,255,255,.86);
+}
+.reply-card + .reply-card {
+  margin-top: 0;
+}
+.nested-reply-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.reply-depth-1,
+.reply-depth-2,
+.reply-depth-3,
+.reply-depth-4 {
+  margin-left: 18px;
+}
+.reply-parent-link {
+  margin: 0 0 10px;
+  color: #b77d98;
+  font-size: .92rem;
+}
+.post-actions-bar {
+  align-items: center;
+}
+.post-inline-action {
+  border: 0;
+  background: transparent;
+  color: #a36983;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+}
+.post-inline-action:hover {
+  color: #7f4d66;
+}
+.post-actions-right {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+.manage-stack {
+  margin-top: 12px;
+  justify-items: stretch;
+}
+.mini-manage-form,
+.inline-reply-form {
+  width: 100%;
+  max-width: 560px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.88);
+  border: 1px solid var(--line);
+}
+.inline-reply-form {
+  margin-top: 12px;
+}
+.inline-reply-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.reply-context-clear {
+  border: 0;
+  background: transparent;
+  color: #9b6880;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.thread-meta-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.thread-detail-meta .meta-right {
+  margin-left: auto;
+}
+.reply-card .thread-meta-line,
+.thread-detail .thread-meta-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reply-card .meta-left,
+.thread-detail .meta-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.reply-card .thread-body,
+.thread-detail .thread-body {
+  margin-top: 8px;
+}
+@media (max-width: 960px) {
+  .thread-single-column {
+    max-width: 100%;
+  }
+  .thread-detail-hero,
+  .reply-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+  .reply-depth-1,
+  .reply-depth-2,
+  .reply-depth-3,
+  .reply-depth-4 {
+    margin-left: 10px;
+  }
+}

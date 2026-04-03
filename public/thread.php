@@ -27,7 +27,6 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <p class="thread-subject-line">
                     <strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?>
                 </p>
-                <span class="count-chip subtle-chip">댓글</span>
             </div>
             <p class="thread-meta-line">
                 <span class="meta-left">
@@ -82,7 +81,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
         </div>
         <div class="topbar-actions">
             <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e($thread['id']) ?>">번호로 찾기</a>
-            <button type="button" class="button-secondary mobile-toggle" data-toggle-form>답글 작성</button>
+            <button type="button" class="button-secondary mobile-toggle" data-toggle-group="reply-forms" data-toggle-target="reply-form-thread">댓글 작성</button>
         </div>
     </header>
 
@@ -90,7 +89,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
         <div class="flash flash-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
     <?php endif; ?>
 
-    <main class="thread-page-layout thread-stage">
+    <main class="thread-page-layout thread-stage thread-single-column">
         <section class="thread-main-column">
             <section class="thread-card glass-card thread-detail thread-detail-hero" id="post-<?= e($thread['id']) ?>">
                 <div class="thread-detail-header">
@@ -103,7 +102,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                                 <span>No.<?= e($thread['id']) ?></span>
                                 <span><?= e(render_time($thread['created_at'])) ?></span>
                             </span>
-                            <span class="meta-right"><span class="count-chip">댓글 <?= e((string) $replyCount) ?></span></span>
+                            <span class="meta-right"><span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span></span>
                         </p>
                     </div>
                 </div>
@@ -118,13 +117,11 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'thread'); ?>
             </section>
 
-            <section class="reply-section glass-card">
+            <section class="reply-section">
                 <div class="reply-section-head">
-                    <div>
-                        <p class="eyebrow">Replies</p>
-                        <h3>댓글 <?= e((string) $replyCount) ?></h3>
+                    <div class="reply-section-title-wrap">
+                        <span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span>
                     </div>
-                    <button type="button" class="button-secondary mobile-toggle" data-toggle-form>답글 작성</button>
                 </div>
                 <div class="reply-list reply-list-embedded">
                     <?php if (empty($replyTree)): ?>
@@ -139,39 +136,6 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 </div>
             </section>
         </section>
-
-        <aside class="panel glass-card compose-panel sticky-panel thread-compose-panel" data-form-panel>
-            <div class="panel-header">
-                <h2>답글 작성</h2>
-                <p>내용이나 이미지를 넣고, 수정/삭제용 비밀번호도 입력해주세요.</p>
-            </div>
-            <div class="reply-context is-collapsed" data-reply-context>
-                <span class="reply-context-prefix">↳</span>
-                <strong class="reply-context-label" data-reply-context-label>No.0000에 답글 작성 중</strong>
-                <button type="button" class="reply-context-clear" data-reply-context-clear>취소</button>
-            </div>
-            <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($thread['id']) ?>" method="post" enctype="multipart/form-data" class="stack-form">
-                <input type="hidden" name="parent_reply_id" id="reply-parent-id" value="">
-                <label>
-                    <span>이름</span>
-                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>">
-                </label>
-                <label>
-                    <span>내용</span>
-                    <textarea id="reply-comment-box" name="comment" rows="7" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea>
-                    <small class="field-hint">답글을 선택하지 않으면 일반 댓글로 등록됩니다.</small>
-                </label>
-                <label>
-                    <span>이미지</span>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
-                </label>
-                <label>
-                    <span>게시물 비밀번호</span>
-                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')">
-                </label>
-                <button class="button-primary" type="submit">답글 등록</button>
-            </form>
-        </aside>
     </main>
 </div>
 </body>
