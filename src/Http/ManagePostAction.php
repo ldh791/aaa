@@ -17,7 +17,7 @@ final class ManagePostAction
         $thread = repository()->findThread($boardKey, $threadId);
         if ($thread === null) {
             flash_set('error', '대상 스레드를 찾지 못했습니다.');
-            redirect('/board.php?board=' . rawurlencode($boardKey));
+            redirect(board_url($boardKey));
         }
 
         $target = $replyId === '' ? $this->findThreadSecret($boardKey, $threadId) : $this->findReplySecret($boardKey, $threadId, $replyId);
@@ -99,7 +99,7 @@ final class ManagePostAction
 
         flash_set($ok ? 'success' : 'error', $ok ? '게시물이 삭제되었습니다.' : '게시물 삭제에 실패했습니다.');
         if ($replyId === '') {
-            redirect('/board.php?board=' . rawurlencode($boardKey));
+            redirect(board_url($boardKey));
         }
         redirect($returnTo);
     }

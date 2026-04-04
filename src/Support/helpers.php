@@ -221,6 +221,28 @@ function delete_upload_file(string $fileName): void
     }
 }
 
+function board_url(string $boardKey): string
+{
+    return '/' . rawurlencode($boardKey);
+}
+
+function thread_url(string $boardKey, string $threadId): string
+{
+    return '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId);
+}
+
+function detect_board_key_from_request(): string
+{
+    $path = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+    $trimmed = trim($path, '/');
+    if ($trimmed === '' || str_contains($trimmed, '.php') || str_contains($trimmed, '/')) {
+        return '';
+    }
+
+    $boards = app_config()['boards'];
+    return isset($boards[$trimmed]) ? $trimmed : '';
+}
+
 function menu_links(): array
 {
     $config = app_config();
@@ -232,7 +254,7 @@ function menu_links(): array
     foreach ($config['boards'] as $boardKey => $board) {
         $links[] = [
             'label' => '/' . $boardKey . '/ ' . $board['title'],
-            'href' => '/board.php?board=' . rawurlencode((string) $boardKey),
+            'href' => board_url((string) $boardKey),
         ];
     }
 
@@ -301,18 +323,24 @@ function reply_target_prefix(array $post): string
 
 function board_manage_return_url(string $boardKey): string
 {
-    return '/board.php?board=' . rawurlencode($boardKey);
+    return board_url($boardKey);
 }
 
 function thread_return_url(string $boardKey, string $threadId): string
 {
-    return '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId);
+    return thread_url($boardKey, $threadId);
 }
 
-function render_inline_reply_form(string $boardKey, string $threadId, string $parentReplyId = '', string $label = '댓글 작성'): void
+function render_inline_reply_form(string $boardKey, string $threadId, string $parentReplyId = '', string $label = '댓글 작성', string $context = 'thread'): void
 {
     $auth = auth_user();
-    $formId = $parentReplyId !== '' ? 'reply-form-' . $parentReplyId : 'reply-form-thread';
+    if ($context === 'board') {
+        $formId = $parentReplyId !== ''
+            ? 'board-reply-form-' . $threadId . '-' . $parentReplyId
+            : 'board-reply-form-' . $threadId;
+    } else {
+        $formId = $parentReplyId !== '' ? 'reply-form-' . $parentReplyId : 'reply-form-thread';
+    }
     ?>
     <section id="<?= e($formId) ?>" class="inline-reply-form glass-card is-collapsed" data-toggle-panel>
         <div class="inline-reply-form-head">
@@ -336,18 +364,14 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     $postId = (string) ($post['id'] ?? '');
     $prefix = ($isReply ? 'reply' : 'thread') . '-' . $postId . '-' . $context;
     $returnTo = $context === 'board' ? board_manage_return_url($boardKey) : thread_return_url($boardKey, $threadId);
-    $replyTarget = $context === 'thread'
-        ? ($isReply ? 'reply-form-' . $postId : 'reply-form-thread')
-        : null;
-    $replyLabel = $isReply ? '↳ 답글' : '↳ 댓글';
+    $replyTarget = $context === 'board'
+        ? ($isReply ? 'board-reply-form-' . $threadId . '-' . $postId : 'board-reply-form-' . $threadId)
+        : ($isReply ? 'reply-form-' . $postId : 'reply-form-thread');
+    $replyLabel = $isReply ? '↳↳ 답글' : '↳ 댓글';
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
-            <?php if ($context === 'thread' && $replyTarget !== null): ?>
-                <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
-            <?php else: ?>
-                <a class="post-inline-action post-reply-action" href="<?= e(thread_return_url($boardKey, $threadId)) ?>"><?= e($replyLabel) ?></a>
-            <?php endif; ?>
+            <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
         </div>
         <div class="post-actions-right">
             <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
@@ -379,9 +403,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
-    <?php if ($context === 'thread'): ?>
-        <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $postId . '에 답글') : '새 댓글 작성'); ?>
-    <?php endif; ?>
+    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $postId . '에 답글') : '새 댓글 작성', $context); ?>
     <?php
 }
 

@@ -47,7 +47,7 @@ $auth = auth_user();
 
     <section class="board-grid">
         <?php foreach ($boards as $boardKey => $board): ?>
-            <a class="board-card accent-<?= e($board['accent']) ?>" href="/board.php?board=<?= e($boardKey) ?>">
+            <a class="board-card accent-<?= e($board['accent']) ?>" href="<?= e(board_url((string) $boardKey)) ?>">
                 <div class="board-card-top">
                     <span class="board-slug">/<?= e($boardKey) ?>/</span>
                     <span class="board-go">Enter</span>

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/../src/bootstrap.php';
 
-$boardKey = query_value('board') ?: 'b';
+$boardKey = query_value('board') ?: detect_board_key_from_request() ?: 'b';
 $board = board_or_404($boardKey);
 $threads = repository()->getThreads($boardKey);
 $flash = flash_get();
@@ -18,27 +18,26 @@ $auth = auth_user();
     <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-board accent-<?= e($board['accent']) ?> sidebar-layout">
-<?php render_site_menu('/board.php'); ?>
+<?php render_site_menu(board_url($boardKey)); ?>
 <div class="page-shell page-shell-with-sidebar">
     <header class="topbar glass-card">
         <a class="home-link" href="/">← 홈</a>
-        <div>
+        <div class="board-topbar-copy">
             <p class="eyebrow">Board</p>
             <h1>/<?= e($boardKey) ?>/ <?= e($board['title']) ?></h1>
             <p><?= e($board['subtitle']) ?></p>
+            <div class="board-hero-actions">
+                <button type="button" class="header-chip-link board-compose-toggle" data-toggle-group="board-compose" data-toggle-target="board-compose-panel">새 스레드 작성</button>
+                <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
+            </div>
         </div>
-        <div class="topbar-actions">
-            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
-        </div>
+        <div class="topbar-actions"></div>
     </header>
 
     <?php if ($flash): ?>
         <div class="flash flash-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
     <?php endif; ?>
 
-    <div class="board-toolbar">
-        <button type="button" class="header-chip-link board-compose-toggle" data-toggle-group="board-compose" data-toggle-target="board-compose-panel">새 스레드 작성</button>
-    </div>
 
     <div class="layout-two-column layout-board-single">
         <aside id="board-compose-panel" class="panel glass-card compose-panel is-collapsed compose-panel-inline" data-toggle-panel>
@@ -93,7 +92,7 @@ $auth = auth_user();
                         </p>
                     </div>
 
-                    <a class="thread-link" href="/thread.php?board=<?= e($boardKey) ?>&id=<?= e($thread['id']) ?>">
+                    <a class="thread-link" href="<?= e(thread_url($boardKey, (string) $thread['id'])) ?>">
                         <div class="thread-preview">
                             <?php if (!empty($thread['image'])): ?>
                                 <img class="thread-image" src="<?= e(public_upload_url($thread['image'])) ?>" alt="thread image">
@@ -108,11 +107,11 @@ $auth = auth_user();
                         </div>
                     </a>
 
-                    <div class="reply-meta">
-                        <span class="thread-open-link-wrap"><a class="thread-open-link" href="/thread.php?board=<?= e($boardKey) ?>&id=<?= e($thread['id']) ?>">스레드 보기</a></span>
-                    </div>
-
                     <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'board'); ?>
+
+                    <div class="reply-meta">
+                        <span class="thread-open-link-wrap"><a class="thread-open-link" href="<?= e(thread_url($boardKey, (string) $thread['id'])) ?>">스레드 보기</a></span>
+                    </div>
 
                     <?php if (!empty($thread['replies'])): ?>
                         <div class="reply-preview-list">

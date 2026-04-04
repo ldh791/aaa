@@ -34,7 +34,7 @@ final class PostAction
 
         if ($errors !== []) {
             flash_set('error', implode(' ', $errors));
-            redirect($isReply ? '/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId) : '/board.php?board=' . rawurlencode($boardKey));
+            redirect($isReply ? thread_url($boardKey, $threadId) : board_url($boardKey));
         }
 
         $auth = auth_user();
@@ -56,7 +56,7 @@ final class PostAction
             $ok = $repo->createReply($boardKey, $threadId, $payload);
             if (!$ok) {
                 flash_set('error', '대상 스레드를 찾지 못했습니다.');
-                redirect('/board.php?board=' . rawurlencode($boardKey));
+                redirect(board_url($boardKey));
             }
             flash_set('success', '답글이 등록되었습니다.');
             redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));

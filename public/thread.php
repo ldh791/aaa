@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/../src/bootstrap.php';
 
-$boardKey = query_value('board') ?: 'b';
+$boardKey = query_value('board') ?: detect_board_key_from_request() ?: 'b';
 $board = board_or_404($boardKey);
 $threadId = query_value('id');
 $thread = repository()->findThread($boardKey, $threadId);
@@ -70,10 +70,10 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
     <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-thread accent-<?= e($board['accent']) ?> sidebar-layout">
-<?php render_site_menu('/thread.php'); ?>
+<?php render_site_menu(board_url($boardKey)); ?>
 <div class="page-shell page-shell-with-sidebar thread-shell">
     <header class="topbar glass-card topbar-thread">
-        <a class="home-link" href="/board.php?board=<?= e($boardKey) ?>">← /<?= e($boardKey) ?>/ 돌아가기</a>
+        <a class="home-link" href="<?= e(board_url($boardKey)) ?>">← /<?= e($boardKey) ?>/ 돌아가기</a>
         <div>
             <p class="eyebrow">Thread</p>
             <h1><?= e($thread['subject'] ?: '무제') ?></h1>
@@ -81,7 +81,6 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
         </div>
         <div class="topbar-actions">
             <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e($thread['id']) ?>">번호로 찾기</a>
-            <button type="button" class="button-secondary mobile-toggle" data-toggle-group="reply-forms" data-toggle-target="reply-form-thread">댓글 작성</button>
         </div>
     </header>
 
@@ -117,11 +116,9 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'thread'); ?>
             </section>
 
-            <section class="reply-section">
-                <div class="reply-section-head">
-                    <div class="reply-section-title-wrap">
-                        <span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span>
-                    </div>
+            <section class="reply-section reply-section-inline-list">
+                <div class="reply-section-head reply-section-head-inline">
+                    <span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span>
                 </div>
                 <div class="reply-list reply-list-embedded">
                     <?php if (empty($replyTree)): ?>
