@@ -36,7 +36,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             </p>
         </div>
         <?php if (!empty($reply['parent_reply_id'])): ?>
-            <p class="reply-parent-link">답글 대상 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p>
+            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 연결된 답글</p>
         <?php endif; ?>
         <?php if (!empty($reply['image'])): ?>
             <a class="detail-image-link" href="<?= e(public_upload_url($reply['image'])) ?>" target="_blank" rel="noreferrer">

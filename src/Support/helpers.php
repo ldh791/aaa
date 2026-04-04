@@ -403,7 +403,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
-    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('No.' . $postId . ' 답글 작성') : '새 댓글 작성', $context); ?>
+    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $postId . '에 답글') : '새 댓글 작성', $context); ?>
     <?php
 }
 

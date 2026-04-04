@@ -574,10 +574,6 @@ textarea { resize: vertical; min-height: 132px; }
   font-size: .93rem;
   letter-spacing: -.01em;
 }
-.post-reply-action::before {
-  content: '↳';
-  font-size: .95em;
-}
 .post-actions-right .post-inline-action {
   opacity: .88;
 }
