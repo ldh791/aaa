@@ -367,12 +367,11 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     $replyTarget = $context === 'board'
         ? ($isReply ? 'board-reply-form-' . $threadId . '-' . $postId : 'board-reply-form-' . $threadId)
         : ($isReply ? 'reply-form-' . $postId : 'reply-form-thread');
-    $replyLabel = $isReply ? '답글' : '댓글';
-    $replyActionClass = $isReply ? 'is-reply' : 'is-thread';
+    $replyLabel = $isReply ? '↳↳ 답글' : '↳ 댓글';
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
-            <button type="button" class="post-inline-action post-reply-action <?= e($replyActionClass) ?>" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
+            <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
         </div>
         <div class="post-actions-right">
             <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
