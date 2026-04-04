@@ -367,7 +367,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     $replyTarget = $context === 'board'
         ? ($isReply ? 'board-reply-form-' . $threadId . '-' . $postId : 'board-reply-form-' . $threadId)
         : ($isReply ? 'reply-form-' . $postId : 'reply-form-thread');
-    $replyLabel = $isReply ? '↳↳ 답글' : '↳ 댓글';
+    $replyLabel = $isReply ? '↳답글' : '댓글';
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
