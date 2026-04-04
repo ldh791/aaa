@@ -122,7 +122,7 @@ $auth = auth_user();
                                             <span class="meta-left"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> <span>No.<?= e($reply['id']) ?></span> <span><?= e(render_time($reply['created_at'])) ?></span></span>
                                         </p>
                                     </div>
-                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p><?php endif; ?>
+                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">답글 대상 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p><?php endif; ?>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
                                     <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                                 </div>
