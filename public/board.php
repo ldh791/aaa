@@ -79,7 +79,7 @@ $auth = auth_user();
             <?php endif; ?>
 
             <?php foreach ($threads as $thread): ?>
-                <?php $displayNumbers = thread_display_number_map($thread); ?>
+                <?php $displayNumbers = thread_display_number_map($thread); $replyTree = build_reply_tree($thread['replies'] ?? []); $flatReplies = flatten_reply_tree_for_preview($replyTree); $initialPreviewCount = board_preview_initial_count(); $previewBatchCount = board_preview_batch_count(); ?>
                 <article class="thread-card glass-card">
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
@@ -114,20 +114,24 @@ $auth = auth_user();
                         <span class="thread-open-link-wrap"><a class="thread-open-link" href="<?= e(thread_url($boardKey, (string) $thread['id'])) ?>">스레드 보기</a></span>
                     </div>
 
-                    <?php if (!empty($thread['replies'])): ?>
-                        <div class="reply-preview-list">
-                            <?php foreach (array_slice(array_reverse($thread['replies']), 0, 2) as $reply): ?>
-                                <div class="reply-preview">
+                    <?php if ($flatReplies !== []): ?>
+                        <div class="reply-preview-list board-reply-preview-list" data-preview-list>
+                            <?php foreach ($flatReplies as $index => $reply): ?>
+                                <?php $depthClass = (int) (($reply['preview_depth'] ?? 0) > 0 ? 1 : 0); ?>
+                                <div class="reply-preview board-reply-preview depth-<?= e((string) $depthClass) ?><?= $index >= $initialPreviewCount ? ' is-collapsed' : '' ?>" data-preview-item data-preview-index="<?= e((string) $index) ?>">
                                     <div class="thread-meta reply-preview-meta">
                                         <p class="thread-meta-line">
                                             <span class="meta-left"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span> <span><?= e(render_time($reply['created_at'])) ?></span></span>
                                         </p>
                                     </div>
                                     <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 대한 답글</p><?php endif; ?>
-                                    <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
+                                    <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 220))) ?></p>
                                     <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                                 </div>
                             <?php endforeach; ?>
+                            <?php if (count($flatReplies) > $initialPreviewCount): ?>
+                                <button type="button" class="load-more-chip" data-preview-more data-preview-batch="<?= e((string) $previewBatchCount) ?>">댓글 더보기</button>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </article>

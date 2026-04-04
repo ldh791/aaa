@@ -149,3 +149,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+
+  document.querySelectorAll('[data-preview-list]').forEach((list) => {
+    const button = list.querySelector('[data-preview-more]');
+    if (!(button instanceof HTMLButtonElement)) return;
+    const batch = Number(button.getAttribute('data-preview-batch') || '10');
+
+    const updateVisibility = () => {
+      const hidden = Array.from(list.querySelectorAll('[data-preview-item].is-collapsed'));
+      button.classList.toggle('is-collapsed', hidden.length === 0);
+      if (hidden.length > 0) {
+        button.textContent = `댓글 더보기 (${hidden.length})`;
+      }
+    };
+
+    button.addEventListener('click', () => {
+      const hidden = Array.from(list.querySelectorAll('[data-preview-item].is-collapsed'));
+      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
+      updateVisibility();
+    });
+
+    updateVisibility();
+  });

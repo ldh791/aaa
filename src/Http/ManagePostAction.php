@@ -26,13 +26,16 @@ final class ManagePostAction
             redirect($returnTo);
         }
 
-        $password = posted_value('post_password');
-        if ($password === '' || !password_verify($password, (string) ($target['password_hash'] ?? ''))) {
-            flash_set('error', '게시물 비밀번호가 올바르지 않습니다.');
-            redirect($returnTo);
+        if ($action === 'unlock_edit') {
+            $this->unlockEdit($boardKey, $threadId, $replyId, $target, $returnTo);
         }
 
         if ($action === 'delete') {
+            $password = posted_value('post_password');
+            if ($password === '' || !password_verify($password, (string) ($target['password_hash'] ?? ''))) {
+                flash_set('error', '게시물 비밀번호가 올바르지 않습니다.');
+                redirect($returnTo);
+            }
             $this->deletePost($boardKey, $threadId, $replyId, $target, $returnTo);
         }
 
@@ -44,12 +47,30 @@ final class ManagePostAction
         redirect($returnTo);
     }
 
+    private function unlockEdit(string $boardKey, string $threadId, string $replyId, array $target, string $returnTo): never
+    {
+        $password = posted_value('post_password');
+        if ($password === '' || !password_verify($password, (string) ($target['password_hash'] ?? ''))) {
+            flash_set('error', '게시물 비밀번호가 올바르지 않습니다.');
+            redirect($returnTo);
+        }
+
+        unlock_post_edit($boardKey, $threadId, $replyId !== '' ? $replyId : $threadId);
+        flash_set('success', '비밀번호가 확인되었습니다. 수정할 내용을 입력해주세요.');
+        redirect($returnTo);
+    }
+
     private function editPost(string $boardKey, string $threadId, string $replyId, array $target, string $returnTo): never
     {
+        $postId = $replyId !== '' ? $replyId : $threadId;
+        if (!is_post_edit_unlocked($boardKey, $threadId, $postId)) {
+            flash_set('error', '먼저 게시물 비밀번호를 확인해주세요.');
+            redirect($returnTo);
+        }
+
         $name = text_limit(posted_value('name') ?: '익명', 30);
         $subject = text_limit(posted_value('subject'), 80);
         $comment = text_limit(posted_value('comment'), 5000);
-        $newPassword = posted_value('new_post_password');
         $errors = [];
 
         if ($replyId === '' && $subject === '' && $comment === '' && empty($target['image'])) {
@@ -71,18 +92,13 @@ final class ManagePostAction
             'updated_at' => (new \DateTimeImmutable())->format(DATE_ATOM),
         ];
 
-        if ($newPassword !== '') {
-            if (strlen($newPassword) < 4) {
-                flash_set('error', '새 게시물 비밀번호는 4자 이상이어야 합니다.');
-                redirect($returnTo);
-            }
-            $payload['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
-        }
-
         $ok = $replyId === ''
             ? repository()->updateThread($boardKey, $threadId, $payload)
             : repository()->updateReply($boardKey, $threadId, $replyId, $payload);
 
+        if ($ok) {
+            clear_post_edit_unlock($boardKey, $threadId, $postId);
+        }
         flash_set($ok ? 'success' : 'error', $ok ? '게시물이 수정되었습니다.' : '게시물 수정에 실패했습니다.');
         redirect($returnTo);
     }

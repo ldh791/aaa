@@ -322,6 +322,66 @@ function reply_target_prefix(array $post): string
 }
 
 
+
+function edit_unlock_key(string $boardKey, string $threadId, string $postId): string
+{
+    return $boardKey . ':' . $threadId . ':' . $postId;
+}
+
+function unlock_post_edit(string $boardKey, string $threadId, string $postId): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    $_SESSION['edit_unlocks'][edit_unlock_key($boardKey, $threadId, $postId)] = time();
+}
+
+function is_post_edit_unlocked(string $boardKey, string $threadId, string $postId): bool
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    $key = edit_unlock_key($boardKey, $threadId, $postId);
+    return isset($_SESSION['edit_unlocks'][$key]);
+}
+
+function clear_post_edit_unlock(string $boardKey, string $threadId, string $postId): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    unset($_SESSION['edit_unlocks'][edit_unlock_key($boardKey, $threadId, $postId)]);
+}
+
+function flatten_reply_tree_for_preview(array $replyTree): array
+{
+    $flat = [];
+    $walk = static function (array $nodes, int $depth = 0) use (&$walk, &$flat): void {
+        foreach ($nodes as $node) {
+            $item = $node;
+            $children = $item['children'] ?? [];
+            $item['preview_depth'] = $depth;
+            unset($item['children']);
+            $flat[] = $item;
+            if (is_array($children) && $children !== []) {
+                $walk($children, min($depth + 1, 1));
+            }
+        }
+    };
+    $walk($replyTree, 0);
+    return $flat;
+}
+
+function board_preview_initial_count(): int
+{
+    return 5;
+}
+
+function board_preview_batch_count(): int
+{
+    return 10;
+}
+
 function thread_display_number_map(array $thread): array
 {
     $map = [];
@@ -404,30 +464,42 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
         ? ($isReply ? 'board-reply-form-' . $threadId . '-' . $postId : 'board-reply-form-' . $threadId)
         : ($isReply ? 'reply-form-' . $postId : 'reply-form-thread');
     $replyLabel = $isReply ? '답글' : '댓글';
+    $displayThread = raw_repository_find_thread($boardKey, $threadId) ?? ['id' => $threadId, 'replies' => []];
+    $displayNo = post_display_number($displayThread, $postId);
+    $isUnlocked = is_post_edit_unlocked($boardKey, $threadId, $postId);
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
             <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
         </div>
         <div class="post-actions-right">
-            <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit">수정</button>
+            <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit"><?= $isUnlocked ? '수정 중' : '수정' ?></button>
             <button type="button" class="post-inline-action post-delete-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-delete">삭제</button>
         </div>
     </div>
     <div class="manage-stack">
-        <section id="<?= e($prefix) ?>-edit" class="mini-manage-form is-collapsed" data-toggle-panel>
+        <section id="<?= e($prefix) ?>-edit" class="mini-manage-form<?= $isUnlocked ? "" : " is-collapsed" ?>" data-toggle-panel>
             <h3><?= $isReply ? '댓글 수정' : '스레드 수정' ?></h3>
-            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
-                <input type="hidden" name="manage_action" value="edit">
-                <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e((string) ($post['name'] ?? '')) ?>"></label>
-                <?php if (!$isReply): ?>
-                    <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
-                <?php endif; ?>
-                <label><span>내용</span><textarea name="comment" rows="<?= $isReply ? '4' : '5' ?>" maxlength="5000"><?= e((string) ($post['comment'] ?? '')) ?></textarea></label>
-                <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
-                <button class="button-secondary" type="submit"><?= $isReply ? '댓글 수정' : '스레드 수정' ?></button>
-            </form>
+            <?php if (!$isUnlocked): ?>
+                <p class="mini-manage-note">먼저 게시물 비밀번호를 확인한 뒤 수정 단계로 넘어갑니다.</p>
+                <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
+                    <input type="hidden" name="manage_action" value="unlock_edit">
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
+                    <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
+                    <button class="button-danger" type="submit"><?= $isReply ? '댓글 수정 열기' : '스레드 수정 열기' ?></button>
+                </form>
+            <?php else: ?>
+                <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
+                    <input type="hidden" name="manage_action" value="edit">
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
+                    <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e((string) ($post['name'] ?? '')) ?>"></label>
+                    <?php if (!$isReply): ?>
+                        <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
+                    <?php endif; ?>
+                    <label><span>내용</span><textarea name="comment" rows="<?= $isReply ? '4' : '5' ?>" maxlength="5000"><?= e((string) ($post['comment'] ?? '')) ?></textarea></label>
+                    <button class="button-danger" type="submit"><?= $isReply ? '댓글 수정' : '스레드 수정' ?></button>
+                </form>
+            <?php endif; ?>
         </section>
         <section id="<?= e($prefix) ?>-delete" class="mini-manage-form danger-form is-collapsed" data-toggle-panel>
             <h3><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></h3>
@@ -439,7 +511,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
-    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . ($context === 'thread' ? post_display_number(raw_repository_find_thread($boardKey, $threadId) ?? ['id' => $threadId, 'replies' => []], $postId) : $postId) . '에 답글') : '새 댓글 작성', $context); ?>
+    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $displayNo . '에 답글') : '새 댓글 작성', $context); ?>
     <?php
 }
 
