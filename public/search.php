@@ -16,6 +16,12 @@ $filters = [
 ];
 $hasSearch = $filters['q'] !== '' || $filters['username'] !== '' || $filters['post_id'] !== '';
 $results = $hasSearch ? repository()->search($filters) : [];
+$selectedBoardKey = ($filters['board'] !== 'all' && isset($boards[$filters['board']])) ? $filters['board'] : '';
+$menuCurrentPath = $selectedBoardKey !== '' ? board_url($selectedBoardKey) : '/search.php';
+$pageHeading = $selectedBoardKey !== '' ? '/' . $selectedBoardKey . '/ 보드 검색' : '게시판 검색';
+$pageDescription = $selectedBoardKey !== ''
+    ? '/' . $selectedBoardKey . '/ 게시판 안에서 제목, 본문, 번호, 유저네임으로 검색할 수 있습니다.'
+    : '전체 게시판 또는 특정 게시판에서 제목, 본문, 번호, 유저네임으로 검색할 수 있습니다.';
 ?>
 <!doctype html>
 <html lang="ko">
@@ -28,14 +34,14 @@ $results = $hasSearch ? repository()->search($filters) : [];
 </head>
 <body class="theme-home sidebar-layout">
 <div class="page-shell page-shell-with-sidebar">
-    <?php render_site_menu('/search.php'); ?>
+    <?php render_site_menu($menuCurrentPath); ?>
 
     <header class="topbar glass-card">
         <a class="home-link" href="/">← 홈</a>
         <div>
             <p class="eyebrow">Search</p>
-            <h1>게시판 검색</h1>
-            <p>전체 게시판 또는 특정 게시판에서 제목, 본문, 번호, 유저네임으로 검색할 수 있습니다.</p>
+            <h1><?= e($pageHeading) ?></h1>
+            <p><?= e($pageDescription) ?></p>
         </div>
         <div class="auth-links">
             <?php if ($auth): ?>
