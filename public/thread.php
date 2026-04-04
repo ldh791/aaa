@@ -17,8 +17,9 @@ $flash = flash_get();
 $auth = auth_user();
 $replyTree = build_reply_tree($thread['replies'] ?? []);
 $replyCount = count($thread['replies'] ?? []);
+$displayNumbers = thread_display_number_map($thread);
 
-$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $boardKey, $threadId): void {
+$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $boardKey, $threadId, $displayNumbers): void {
     $depthClass = 'reply-depth-' . min($depth, 4);
     ?>
     <article class="reply-card glass-card <?= e($depthClass) ?>" id="post-<?= e($reply['id']) ?>">
@@ -30,13 +31,13 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             </div>
             <p class="thread-meta-line">
                 <span class="meta-left">
-                    <span>No.<?= e($reply['id']) ?></span>
+                    <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span>
                     <span><?= e(render_time($reply['created_at'])) ?></span>
                 </span>
             </p>
         </div>
         <?php if (!empty($reply['parent_reply_id'])): ?>
-            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 연결된 답글</p>
+            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 연결된 답글</p>
         <?php endif; ?>
         <?php if (!empty($reply['image'])): ?>
             <a class="detail-image-link" href="<?= e(public_upload_url($reply['image'])) ?>" target="_blank" rel="noreferrer">
@@ -80,7 +81,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             <p><?= e($board['subtitle']) ?></p>
         </div>
         <div class="topbar-actions">
-            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e($thread['id']) ?>">번호로 찾기</a>
+            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e((string) ($displayNumbers[$thread['id']] ?? '1')) ?>">번호로 찾기</a>
         </div>
     </header>
 
@@ -98,7 +99,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                         <p class="thread-meta-line thread-detail-meta">
                             <span class="meta-left">
                                 <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
-                                <span>No.<?= e($thread['id']) ?></span>
+                                <span>No.<?= e((string) ($displayNumbers[$thread['id']] ?? '1')) ?></span>
                                 <span><?= e(render_time($thread['created_at'])) ?></span>
                             </span>
                             <span class="meta-right"><span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span></span>

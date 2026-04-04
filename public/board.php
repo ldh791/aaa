@@ -20,7 +20,7 @@ $auth = auth_user();
 <body class="theme-board accent-<?= e($board['accent']) ?> sidebar-layout">
 <?php render_site_menu(board_url($boardKey)); ?>
 <div class="page-shell page-shell-with-sidebar">
-    <header class="topbar glass-card">
+    <header class="topbar glass-card board-topbar">
         <a class="home-link" href="/">← 홈</a>
         <div class="board-topbar-copy">
             <p class="eyebrow">Board</p>
@@ -31,7 +31,7 @@ $auth = auth_user();
                 <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>">보드 검색</a>
             </div>
         </div>
-        <div class="topbar-actions"></div>
+        <div class="topbar-side-spacer" aria-hidden="true"></div>
     </header>
 
     <?php if ($flash): ?>
@@ -79,13 +79,14 @@ $auth = auth_user();
             <?php endif; ?>
 
             <?php foreach ($threads as $thread): ?>
+                <?php $displayNumbers = thread_display_number_map($thread); ?>
                 <article class="thread-card glass-card">
                     <div class="thread-meta">
                         <p class="thread-subject"><?= e($thread['subject'] ?: '무제') ?></p>
                         <p class="thread-meta-line">
                             <span class="meta-left">
                                 <strong><?= e($thread['name']) ?></strong><?= member_badge_html($thread) ?>
-                                <span>No.<?= e($thread['id']) ?></span>
+                                <span>No.<?= e((string) ($displayNumbers[$thread['id']] ?? '1')) ?></span>
                                 <span><?= e(render_time($thread['created_at'])) ?></span>
                             </span>
                             <span class="meta-right"><span class="count-chip">댓글 <?= e((string) $thread['reply_count']) ?></span></span>
@@ -119,10 +120,10 @@ $auth = auth_user();
                                 <div class="reply-preview">
                                     <div class="thread-meta reply-preview-meta">
                                         <p class="thread-meta-line">
-                                            <span class="meta-left"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> <span>No.<?= e($reply['id']) ?></span> <span><?= e(render_time($reply['created_at'])) ?></span></span>
+                                            <span class="meta-left"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?> <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span> <span><?= e(render_time($reply['created_at'])) ?></span></span>
                                         </p>
                                     </div>
-                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) $reply['parent_reply_id']) ?>에 대한 답글</p><?php endif; ?>
+                                    <?php if (!empty($reply['parent_reply_id'])): ?><p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 대한 답글</p><?php endif; ?>
                                     <p><?= nl2br(e(text_preview($reply['comment'] ?? '', 200))) ?></p>
                                     <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                                 </div>

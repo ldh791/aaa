@@ -321,6 +321,42 @@ function reply_target_prefix(array $post): string
     return '>>' . ($post['id'] ?? '');
 }
 
+
+function thread_display_number_map(array $thread): array
+{
+    $map = [];
+    $next = 1;
+
+    $threadId = (string) ($thread['id'] ?? '');
+    if ($threadId !== '') {
+        $map[$threadId] = $next++;
+    }
+
+    foreach (($thread['replies'] ?? []) as $reply) {
+        $replyId = (string) ($reply['id'] ?? '');
+        if ($replyId === '' || isset($map[$replyId])) {
+            continue;
+        }
+        $map[$replyId] = $next++;
+    }
+
+    return $map;
+}
+
+function post_display_number(array $thread, string $postId): string
+{
+    static $cache = [];
+
+    $threadId = (string) ($thread['id'] ?? '');
+    $cacheKey = $threadId !== '' ? $threadId : spl_object_hash((object) $thread);
+
+    if (!isset($cache[$cacheKey])) {
+        $cache[$cacheKey] = thread_display_number_map($thread);
+    }
+
+    return (string) ($cache[$cacheKey][$postId] ?? $postId);
+}
+
 function board_manage_return_url(string $boardKey): string
 {
     return board_url($boardKey);
@@ -403,7 +439,7 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
-    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $postId . '에 답글') : '새 댓글 작성', $context); ?>
+    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . ($context === 'thread' ? post_display_number(raw_repository_find_thread($boardKey, $threadId) ?? ['id' => $threadId, 'replies' => []], $postId) : $postId) . '에 답글') : '새 댓글 작성', $context); ?>
     <?php
 }
 

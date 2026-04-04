@@ -902,3 +902,32 @@ textarea { resize: vertical; min-height: 132px; }
     flex: 1 1 100%;
   }
 }
+
+
+.board-topbar {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
+  align-items: start;
+}
+.board-topbar .home-link { justify-self: start; }
+.board-topbar .board-topbar-copy {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.board-topbar .board-topbar-copy p,
+.board-topbar .board-topbar-copy h1 { text-align: center; }
+.board-topbar .board-hero-actions { justify-content: center; }
+.board-topbar .topbar-side-spacer { justify-self: end; width: 120px; min-height: 1px; }
+
+@media (max-width: 960px) {
+  .board-topbar {
+    grid-template-columns: 1fr;
+  }
+  .board-topbar .home-link,
+  .board-topbar .topbar-side-spacer { justify-self: start; width: auto; }
+  .board-topbar .board-topbar-copy { justify-items: start; text-align: left; }
+  .board-topbar .board-topbar-copy p,
+  .board-topbar .board-topbar-copy h1 { text-align: left; }
+  .board-topbar .board-hero-actions { justify-content: flex-start; }
+}

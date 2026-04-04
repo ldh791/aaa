@@ -113,7 +113,7 @@ $pageDescription = $selectedBoardKey !== ''
                     <p>
                         <strong><?= e($result['name']) ?></strong>
                         <span>/<?= e($result['board']) ?>/</span>
-                        <span>No.<?= e($result['post_id']) ?></span>
+                        <span>No.<?= e((string) post_display_number(raw_repository_find_thread((string) $result['board'], (string) $result['thread_id']) ?? ['id' => (string) $result['thread_id'], 'replies' => []], (string) $result['post_id'])) ?></span>
                         <span><?= $result['is_reply'] ? '댓글' : '스레드' ?></span>
                         <span><?= e(render_time($result['created_at'])) ?></span>
                     </p>
