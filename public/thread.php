@@ -102,7 +102,6 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                                 <span>No.<?= e((string) ($displayNumbers[$thread['id']] ?? '1')) ?></span>
                                 <span><?= e(render_time($thread['created_at'])) ?></span>
                             </span>
-                            <span class="meta-right"><span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span></span>
                         </p>
                     </div>
                 </div>
@@ -119,7 +118,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
 
             <section class="reply-section reply-section-inline-list">
                 <div class="reply-section-head reply-section-head-inline">
-                    <span class="count-chip count-chip-accent">댓글 <?= e((string) $replyCount) ?></span>
+                    <span class="count-chip">댓글 <?= e((string) $replyCount) ?></span>
                 </div>
                 <div class="reply-list reply-list-embedded">
                     <?php if (empty($replyTree)): ?>
