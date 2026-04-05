@@ -18,7 +18,6 @@ final class PostAction
         $comment = text_limit(posted_value('comment'), 5000);
         $postPassword = posted_value('post_password');
         $parentReplyId = posted_value('parent_reply_id');
-        $returnTo = posted_value('return_to');
 
         $errors = [];
         if (!$isReply && $subject === '' && $comment === '' && empty($_FILES['image']['name'])) {
@@ -33,9 +32,11 @@ final class PostAction
 
         $upload = $this->handleUpload($_FILES['image'] ?? null, $errors);
 
+        $returnTo = $this->resolveReturnTo($boardKey, $threadId, $isReply);
+
         if ($errors !== []) {
             flash_set('error', implode(' ', $errors));
-            redirect($returnTo !== '' ? $returnTo : ($isReply ? thread_url($boardKey, $threadId) : board_url($boardKey)));
+            redirect($returnTo);
         }
 
         $auth = auth_user();
@@ -57,15 +58,50 @@ final class PostAction
             $ok = $repo->createReply($boardKey, $threadId, $payload);
             if (!$ok) {
                 flash_set('error', '대상 스레드를 찾지 못했습니다.');
-                redirect($returnTo !== '' ? $returnTo : board_url($boardKey));
+                redirect(board_url($boardKey));
             }
             flash_set('success', '답글이 등록되었습니다.');
-            redirect($returnTo !== '' ? $returnTo : ('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId)));
+            redirect($returnTo);
         }
 
         $newThreadId = $repo->createThread($boardKey, $payload);
         flash_set('success', '새 스레드가 생성되었습니다.');
-        redirect($returnTo !== '' ? $returnTo : ('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($newThreadId)));
+        if (strpos($returnTo, board_url($boardKey)) === 0) {
+            redirect(board_url($boardKey) . '#post-' . rawurlencode($newThreadId));
+        }
+        redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($newThreadId));
+    }
+
+
+    private function resolveReturnTo(string $boardKey, string $threadId, bool $isReply): string
+    {
+        $fallback = $isReply ? thread_url($boardKey, $threadId) : board_url($boardKey);
+        $returnTo = posted_value('return_to');
+        if ($returnTo === '' && isset($_SERVER['HTTP_REFERER'])) {
+            $returnTo = (string) $_SERVER['HTTP_REFERER'];
+        }
+        if ($returnTo === '') {
+            return $fallback;
+        }
+
+        $parts = parse_url($returnTo);
+        if ($parts === false) {
+            return $fallback;
+        }
+
+        $path = (string) ($parts['path'] ?? '');
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+        $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+
+        if ($path === '') {
+            return $fallback;
+        }
+
+        if (str_starts_with($path, '/')) {
+            return $path . $query . $fragment;
+        }
+
+        return $fallback;
     }
 
     private function handleUpload(?array $file, array &$errors): array

@@ -105,56 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const replyContext = document.querySelector('[data-reply-context]');
-  const replyContextLabel = document.querySelector('[data-reply-context-label]');
-  const replyContextClear = document.querySelector('[data-reply-context-clear]');
-  const parentField = document.querySelector('#reply-parent-id');
-
-  const clearReplyContext = () => {
-    if (replyContext) replyContext.classList.add('is-collapsed');
-    if (replyContextLabel) replyContextLabel.textContent = '일반 댓글 작성 중';
-    if (parentField instanceof HTMLInputElement) {
-      parentField.value = '';
-    }
-    const commentBox = document.querySelector('#reply-comment-box');
-    if (commentBox instanceof HTMLTextAreaElement) {
-      commentBox.dataset.replying = '';
-    }
-  };
-
-  if (replyContextClear) {
-    replyContextClear.addEventListener('click', clearReplyContext);
-  }
-
-  document.querySelectorAll('[data-quote-target]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const selector = button.getAttribute('data-quote-target');
-      const parentId = button.getAttribute('data-quote-parent') || '';
-      const label = button.getAttribute('data-quote-label') || `No.${parentId}`;
-      const target = selector ? document.querySelector(selector) : null;
-      if (!(target instanceof HTMLTextAreaElement)) return;
-
-      if (composePanel) {
-        composePanel.classList.add('is-open');
-      }
-      if (parentField instanceof HTMLInputElement) {
-        parentField.value = parentId;
-      }
-      if (replyContext && replyContextLabel) {
-        replyContext.classList.remove('is-collapsed');
-        replyContextLabel.textContent = `${label}에 답글 작성 중`; target.dataset.replying='1';
-      }
-      target.focus();
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  });
-});
-
-
   document.querySelectorAll('[data-preview-list]').forEach((list) => {
     const button = list.querySelector('[data-preview-more]');
     if (!(button instanceof HTMLButtonElement)) return;
-    const batch = Number(button.getAttribute('data-preview-batch') || '10');
+    const batch = Number(button.getAttribute('data-preview-batch') || '20');
 
     const updateVisibility = () => {
       const hidden = Array.from(list.querySelectorAll('[data-preview-item].is-collapsed'));
@@ -172,3 +126,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateVisibility();
   });
+});

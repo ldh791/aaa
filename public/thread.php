@@ -14,15 +14,19 @@ if ($thread === null) {
 }
 
 $flash = flash_get();
-$auth = auth_user();
 $replyTree = build_reply_tree($thread['replies'] ?? []);
 $replyCount = count($thread['replies'] ?? []);
 $displayNumbers = thread_display_number_map($thread);
+$initialReplyCount = thread_preview_initial_count();
+$replyBatchCount = thread_preview_batch_count();
+$replyIndex = 0;
 
-$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $boardKey, $threadId, $displayNumbers): void {
-    $depthClass = 'reply-depth-' . min($depth, 4);
+$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, &$replyIndex, $boardKey, $threadId, $displayNumbers, $initialReplyCount): void {
+    $currentIndex = $replyIndex++;
+    $depthClass = 'reply-depth-' . min($depth, 2);
+    $collapsedClass = $currentIndex >= $initialReplyCount ? ' is-collapsed' : '';
     ?>
-    <article class="reply-card glass-card <?= e($depthClass) ?>" id="post-<?= e($reply['id']) ?>">
+    <article class="reply-card glass-card <?= e($depthClass) ?><?= e($collapsedClass) ?>" id="post-<?= e((string) $reply['id']) ?>" data-preview-item>
         <div class="thread-meta">
             <div class="thread-meta-topline">
                 <p class="thread-subject-line">
@@ -45,7 +49,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             </a>
         <?php endif; ?>
         <?php if (!empty($reply['comment'])): ?>
-            <div class="thread-body reply-body"><?= nl2br(e($reply['comment'])) ?></div>
+            <div class="thread-body reply-body"><?= nl2br(e((string) $reply['comment'])) ?></div>
         <?php endif; ?>
 
         <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
@@ -80,9 +84,6 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             <h1><?= e($thread['subject'] ?: '무제') ?></h1>
             <p><?= e($board['subtitle']) ?></p>
         </div>
-        <div class="topbar-actions">
-            <a class="header-chip-link" href="/search.php?board=<?= e($boardKey) ?>&post_id=<?= e((string) ($displayNumbers[$thread['id']] ?? '1')) ?>">번호로 찾기</a>
-        </div>
     </header>
 
     <?php if ($flash): ?>
@@ -91,7 +92,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
 
     <main class="thread-page-layout thread-stage thread-single-column">
         <section class="thread-main-column">
-            <section class="thread-card glass-card thread-detail thread-detail-hero" id="post-<?= e($thread['id']) ?>">
+            <section class="thread-card glass-card thread-detail thread-detail-hero" id="post-<?= e((string) $thread['id']) ?>">
                 <div class="thread-detail-header">
                     <div class="thread-detail-copy">
                         <p class="thread-kicker">원본 스레드</p>
@@ -111,7 +112,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                     </a>
                 <?php endif; ?>
                 <?php if (!empty($thread['comment'])): ?>
-                    <div class="thread-body thread-body-featured"><?= nl2br(e($thread['comment'])) ?></div>
+                    <div class="thread-body thread-body-featured thread-body-plain"><?= nl2br(e((string) $thread['comment'])) ?></div>
                 <?php endif; ?>
                 <?php render_post_actions($boardKey, (string) $thread['id'], $thread, false, 'thread'); ?>
             </section>
@@ -120,7 +121,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                 <div class="reply-section-head reply-section-head-inline">
                     <span class="count-chip">댓글 <?= e((string) $replyCount) ?></span>
                 </div>
-                <div class="reply-list reply-list-embedded">
+                <div class="reply-list reply-list-embedded" data-preview-list>
                     <?php if (empty($replyTree)): ?>
                         <div class="empty-state reply-empty">
                             <p>아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</p>
@@ -129,6 +130,9 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                         <?php foreach ($replyTree as $reply): ?>
                             <?php $renderReplyNode($reply, 0); ?>
                         <?php endforeach; ?>
+                        <?php if ($replyCount > $initialReplyCount): ?>
+                            <button type="button" class="load-more-chip" data-preview-more data-preview-batch="<?= e((string) $replyBatchCount) ?>">댓글 더보기</button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </section>

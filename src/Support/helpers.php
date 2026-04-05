@@ -374,12 +374,22 @@ function flatten_reply_tree_for_preview(array $replyTree): array
 
 function board_preview_initial_count(): int
 {
-    return 5;
+    return 20;
 }
 
 function board_preview_batch_count(): int
 {
-    return 10;
+    return 20;
+}
+
+function thread_preview_initial_count(): int
+{
+    return 20;
+}
+
+function thread_preview_batch_count(): int
+{
+    return 20;
 }
 
 function thread_display_number_map(array $thread): array
@@ -437,7 +447,7 @@ function render_inline_reply_form(string $boardKey, string $threadId, string $pa
         $returnTo = board_url($boardKey) . '#post-' . $threadId;
     } else {
         $formId = $parentReplyId !== '' ? 'reply-form-' . $parentReplyId : 'reply-form-thread';
-        $returnTo = thread_url($boardKey, $threadId) . ($parentReplyId !== '' ? '#post-' . $parentReplyId : '#post-' . $threadId);
+        $returnTo = thread_url($boardKey, $threadId) . '#post-' . ($parentReplyId !== '' ? $parentReplyId : $threadId);
     }
     ?>
     <section id="<?= e($formId) ?>" class="inline-reply-form glass-card is-collapsed" data-toggle-panel>
