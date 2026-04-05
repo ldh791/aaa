@@ -513,10 +513,10 @@ textarea { resize: vertical; min-height: 132px; }
 }
 .thread-body-featured {
   margin-top: 18px;
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255,250,252,.95), rgba(255,244,248,.85));
-  border: 1px solid rgba(179,139,164,.18);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
   font-size: 1.02rem;
   line-height: 1.8;
 }
@@ -966,4 +966,24 @@ textarea { resize: vertical; min-height: 132px; }
   .board-topbar .board-topbar-copy p,
   .board-topbar .board-topbar-copy h1 { text-align: left; }
   .board-topbar .board-hero-actions { justify-content: flex-start; }
+}
+
+
+.board-reply-tree-preview {
+  gap: 16px;
+  padding-top: 10px;
+}
+.board-reply-tree-preview > .reply-card {
+  margin-top: 0;
+}
+.board-reply-tree .reply-card,
+.board-reply-tree-preview .reply-card {
+  background: rgba(255,255,255,.9);
+}
+.board-reply-tree-preview .reply-card .thread-body,
+.reply-list-embedded .reply-card .thread-body {
+  margin-top: 8px;
+}
+.thread-detail .thread-body-featured {
+  margin-top: 14px;
 }

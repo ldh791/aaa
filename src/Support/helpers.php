@@ -434,8 +434,10 @@ function render_inline_reply_form(string $boardKey, string $threadId, string $pa
         $formId = $parentReplyId !== ''
             ? 'board-reply-form-' . $threadId . '-' . $parentReplyId
             : 'board-reply-form-' . $threadId;
+        $returnTo = board_url($boardKey) . '#post-' . $threadId;
     } else {
         $formId = $parentReplyId !== '' ? 'reply-form-' . $parentReplyId : 'reply-form-thread';
+        $returnTo = thread_url($boardKey, $threadId) . ($parentReplyId !== '' ? '#post-' . $parentReplyId : '#post-' . $threadId);
     }
     ?>
     <section id="<?= e($formId) ?>" class="inline-reply-form glass-card is-collapsed" data-toggle-panel>
@@ -445,6 +447,7 @@ function render_inline_reply_form(string $boardKey, string $threadId, string $pa
         </div>
         <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($threadId) ?>" method="post" enctype="multipart/form-data" class="stack-form compact-form">
             <input type="hidden" name="parent_reply_id" value="<?= e($parentReplyId) ?>">
+            <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
             <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
             <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
             <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>

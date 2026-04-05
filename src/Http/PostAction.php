@@ -18,6 +18,7 @@ final class PostAction
         $comment = text_limit(posted_value('comment'), 5000);
         $postPassword = posted_value('post_password');
         $parentReplyId = posted_value('parent_reply_id');
+        $returnTo = posted_value('return_to');
 
         $errors = [];
         if (!$isReply && $subject === '' && $comment === '' && empty($_FILES['image']['name'])) {
@@ -34,7 +35,7 @@ final class PostAction
 
         if ($errors !== []) {
             flash_set('error', implode(' ', $errors));
-            redirect($isReply ? thread_url($boardKey, $threadId) : board_url($boardKey));
+            redirect($returnTo !== '' ? $returnTo : ($isReply ? thread_url($boardKey, $threadId) : board_url($boardKey)));
         }
 
         $auth = auth_user();
@@ -56,15 +57,15 @@ final class PostAction
             $ok = $repo->createReply($boardKey, $threadId, $payload);
             if (!$ok) {
                 flash_set('error', '대상 스레드를 찾지 못했습니다.');
-                redirect(board_url($boardKey));
+                redirect($returnTo !== '' ? $returnTo : board_url($boardKey));
             }
             flash_set('success', '답글이 등록되었습니다.');
-            redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId));
+            redirect($returnTo !== '' ? $returnTo : ('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($threadId)));
         }
 
         $newThreadId = $repo->createThread($boardKey, $payload);
         flash_set('success', '새 스레드가 생성되었습니다.');
-        redirect('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($newThreadId));
+        redirect($returnTo !== '' ? $returnTo : ('/thread.php?board=' . rawurlencode($boardKey) . '&id=' . rawurlencode($newThreadId)));
     }
 
     private function handleUpload(?array $file, array &$errors): array
