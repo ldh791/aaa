@@ -12,7 +12,13 @@ final class JsonPostRepository implements PostRepositoryInterface
     public function getThreads(string $boardKey): array
     {
         $threads = $this->readBoard($boardKey);
-        usort($threads, static fn (array $a, array $b): int => strcmp((string) ($b['bumped_at'] ?? ''), (string) ($a['bumped_at'] ?? '')));
+        usort($threads, static function (array $a, array $b): int {
+            $stickyCompare = (int) !empty($b['sticky']) <=> (int) !empty($a['sticky']);
+            if ($stickyCompare !== 0) {
+                return $stickyCompare;
+            }
+            return strcmp((string) ($b['bumped_at'] ?? ''), (string) ($a['bumped_at'] ?? ''));
+        });
         return array_map(fn (array $thread): array => $this->sanitizeThread($thread), $threads);
     }
 
@@ -46,6 +52,8 @@ final class JsonPostRepository implements PostRepositoryInterface
             'created_at' => $payload['created_at'],
             'bumped_at' => $payload['created_at'],
             'reply_count' => 0,
+            'sticky' => false,
+            'locked' => false,
             'replies' => [],
         ];
 
@@ -59,6 +67,10 @@ final class JsonPostRepository implements PostRepositoryInterface
         foreach ($threads as &$thread) {
             if (($thread['id'] ?? '') !== $threadId) {
                 continue;
+            }
+
+            if (!empty($thread['locked'])) {
+                return false;
             }
 
             $parentReplyId = (string) ($payload['parent_reply_id'] ?? '');
@@ -293,6 +305,8 @@ final class JsonPostRepository implements PostRepositoryInterface
 
     private function sanitizeThread(array $thread): array
     {
+        $thread['sticky'] = !empty($thread['sticky']);
+        $thread['locked'] = !empty($thread['locked']);
         unset($thread['password_hash']);
         foreach (($thread['replies'] ?? []) as $index => $reply) {
             unset($reply['password_hash']);

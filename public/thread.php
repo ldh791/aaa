@@ -79,11 +79,12 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
 <div class="page-shell page-shell-with-sidebar thread-shell">
     <header class="topbar glass-card topbar-thread">
         <a class="home-link" href="<?= e(board_url($boardKey)) ?>">← /<?= e($boardKey) ?>/ 돌아가기</a>
-        <div>
+        <div class="board-topbar-copy">
             <p class="eyebrow">Thread</p>
             <h1><?= e($thread['subject'] ?: '무제') ?></h1>
             <p><?= e($board['subtitle']) ?></p>
         </div>
+        <div class="topbar-side-spacer" aria-hidden="true"></div>
     </header>
 
     <?php if ($flash): ?>

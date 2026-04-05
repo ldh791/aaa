@@ -473,6 +473,8 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     $postId = (string) ($post['id'] ?? '');
     $prefix = ($isReply ? 'reply' : 'thread') . '-' . $postId . '-' . $context;
     $returnTo = $context === 'board' ? board_manage_return_url($boardKey) : thread_return_url($boardKey, $threadId);
+    $threadRaw = raw_repository_find_thread($boardKey, $threadId);
+    $threadLocked = !empty($threadRaw['locked']);
     $replyTarget = $context === 'board'
         ? ($isReply ? 'board-reply-form-' . $threadId . '-' . $postId : 'board-reply-form-' . $threadId)
         : ($isReply ? 'reply-form-' . $postId : 'reply-form-thread');
@@ -483,7 +485,11 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
     ?>
     <div class="post-actions-bar">
         <div class="post-actions-left">
-            <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
+            <?php if (!$threadLocked): ?>
+                <button type="button" class="post-inline-action post-reply-action" data-toggle-group="reply-forms" data-toggle-target="<?= e($replyTarget) ?>"><?= e($replyLabel) ?></button>
+            <?php else: ?>
+                <span class="post-inline-action is-disabled">잠긴 스레드</span>
+            <?php endif; ?>
         </div>
         <div class="post-actions-right">
             <button type="button" class="post-inline-action" data-toggle-group="manage-<?= e($postId) ?>" data-toggle-target="<?= e($prefix) ?>-edit"><?= $isUnlocked ? '수정 중' : '수정' ?></button>
@@ -524,7 +530,9 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             </form>
         </section>
     </div>
-    <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $displayNo . '에 답글') : '새 댓글 작성', $context); ?>
+    <?php if (!$threadLocked): ?>
+        <?php render_inline_reply_form($boardKey, $threadId, $isReply ? $postId : '', $isReply ? ('댓글 No.' . $displayNo . '에 답글') : '새 댓글 작성', $context); ?>
+    <?php endif; ?>
     <?php
 }
 
@@ -547,4 +555,231 @@ function build_reply_tree(array $replies): array
     };
 
     return $walk('');
+}
+
+
+function all_board_threads_raw(): array
+{
+    $all = [];
+    foreach (array_keys(app_config()['boards']) as $boardKey) {
+        $decoded = json_decode((string) file_get_contents(board_file_path($boardKey)), true);
+        if (!is_array($decoded)) {
+            continue;
+        }
+        foreach ($decoded as $thread) {
+            $thread['board'] = $boardKey;
+            $all[] = $thread;
+        }
+    }
+    return $all;
+}
+
+function write_board_threads_raw(string $boardKey, array $threads): void
+{
+    file_put_contents(board_file_path($boardKey), json_encode(array_values($threads), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+}
+
+function admin_config(): array
+{
+    return app_config()['admin'] ?? [];
+}
+
+function admin_gate_path(): string
+{
+    return '/mod-' . rawurlencode((string) (admin_config()['gate_key'] ?? 'momo-entry'));
+}
+
+function admin_session(): ?array
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    $admin = $_SESSION['admin_auth'] ?? null;
+    return is_array($admin) ? $admin : null;
+}
+
+function admin_logout(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    unset($_SESSION['admin_auth']);
+}
+
+function admin_login(string $username): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    $_SESSION['admin_auth'] = ['username' => $username, 'logged_at' => time()];
+}
+
+function require_admin_gate_or_404(string $gate): void
+{
+    if ($gate !== (string) (admin_config()['gate_key'] ?? '')) {
+        http_response_code(404);
+        include __DIR__ . '/../View/404.php';
+        exit;
+    }
+}
+
+function admin_dashboard_stats(): array
+{
+    $threads = 0;
+    $replies = 0;
+    $images = 0;
+    $locked = 0;
+    $sticky = 0;
+    foreach (all_board_threads_raw() as $thread) {
+        $threads++;
+        $replies += count($thread['replies'] ?? []);
+        if (!empty($thread['image'])) {
+            $images++;
+        }
+        if (!empty($thread['locked'])) {
+            $locked++;
+        }
+        if (!empty($thread['sticky'])) {
+            $sticky++;
+        }
+        foreach (($thread['replies'] ?? []) as $reply) {
+            if (!empty($reply['image'])) {
+                $images++;
+            }
+        }
+    }
+    $users = json_decode((string) file_get_contents(app_config()['storage_path'] . '/data/users.json'), true);
+    return [
+        'threads' => $threads,
+        'replies' => $replies,
+        'images' => $images,
+        'locked' => $locked,
+        'sticky' => $sticky,
+        'users' => is_array($users) ? count($users) : 0,
+    ];
+}
+
+function admin_recent_posts(int $limit = 120): array
+{
+    $items = [];
+    foreach (all_board_threads_raw() as $thread) {
+        $boardKey = (string) ($thread['board'] ?? '');
+        $items[] = [
+            'type' => 'thread',
+            'board' => $boardKey,
+            'thread_id' => (string) ($thread['id'] ?? ''),
+            'reply_id' => '',
+            'subject' => (string) ($thread['subject'] ?? ''),
+            'name' => (string) ($thread['name'] ?? ''),
+            'comment' => (string) ($thread['comment'] ?? ''),
+            'created_at' => (string) ($thread['created_at'] ?? ''),
+            'reply_count' => count($thread['replies'] ?? []),
+            'has_image' => !empty($thread['image']),
+            'sticky' => !empty($thread['sticky']),
+            'locked' => !empty($thread['locked']),
+        ];
+        foreach (($thread['replies'] ?? []) as $reply) {
+            $items[] = [
+                'type' => 'reply',
+                'board' => $boardKey,
+                'thread_id' => (string) ($thread['id'] ?? ''),
+                'reply_id' => (string) ($reply['id'] ?? ''),
+                'subject' => (string) ($thread['subject'] ?? ''),
+                'name' => (string) ($reply['name'] ?? ''),
+                'comment' => (string) ($reply['comment'] ?? ''),
+                'created_at' => (string) ($reply['created_at'] ?? ''),
+                'reply_count' => 0,
+                'has_image' => !empty($reply['image']),
+                'sticky' => false,
+                'locked' => false,
+            ];
+        }
+    }
+    usort($items, static fn(array $a, array $b): int => strcmp((string) ($b['created_at'] ?? ''), (string) ($a['created_at'] ?? '')));
+    return array_slice($items, 0, $limit);
+}
+
+function admin_thread_action(string $boardKey, string $threadId, string $action): bool
+{
+    $threads = json_decode((string) file_get_contents(board_file_path($boardKey)), true);
+    if (!is_array($threads)) {
+        return false;
+    }
+    $changed = false;
+    foreach ($threads as &$thread) {
+        if (($thread['id'] ?? '') !== $threadId) {
+            continue;
+        }
+        if ($action === 'toggle_lock') {
+            $thread['locked'] = empty($thread['locked']);
+            $changed = true;
+        } elseif ($action === 'toggle_sticky') {
+            $thread['sticky'] = empty($thread['sticky']);
+            $changed = true;
+        } elseif ($action === 'delete_image' && !empty($thread['image'])) {
+            delete_upload_file((string) $thread['image']);
+            $thread['image'] = null;
+            $thread['image_original_name'] = null;
+            $changed = true;
+        } elseif ($action === 'delete') {
+            delete_upload_file((string) ($thread['image'] ?? ''));
+            foreach (($thread['replies'] ?? []) as $reply) {
+                delete_upload_file((string) ($reply['image'] ?? ''));
+            }
+        }
+    }
+    unset($thread);
+    if ($action === 'delete') {
+        $before = count($threads);
+        $threads = array_values(array_filter($threads, static fn(array $thread): bool => ($thread['id'] ?? '') !== $threadId));
+        $changed = $changed || count($threads) !== $before;
+    }
+    if ($changed) {
+        write_board_threads_raw($boardKey, $threads);
+    }
+    return $changed;
+}
+
+function admin_reply_action(string $boardKey, string $threadId, string $replyId, string $action): bool
+{
+    $threads = json_decode((string) file_get_contents(board_file_path($boardKey)), true);
+    if (!is_array($threads)) {
+        return false;
+    }
+    $changed = false;
+    foreach ($threads as &$thread) {
+        if (($thread['id'] ?? '') !== $threadId) {
+            continue;
+        }
+        if ($action === 'delete_image') {
+            foreach ($thread['replies'] as &$reply) {
+                if (($reply['id'] ?? '') !== $replyId) {
+                    continue;
+                }
+                if (!empty($reply['image'])) {
+                    delete_upload_file((string) $reply['image']);
+                    $reply['image'] = null;
+                    $reply['image_original_name'] = null;
+                    $changed = true;
+                }
+            }
+            unset($reply);
+        } elseif ($action === 'delete') {
+            foreach (($thread['replies'] ?? []) as $reply) {
+                if (($reply['id'] ?? '') === $replyId || ($reply['parent_reply_id'] ?? '') === $replyId) {
+                    delete_upload_file((string) ($reply['image'] ?? ''));
+                }
+            }
+            $before = count($thread['replies']);
+            $thread['replies'] = array_values(array_filter($thread['replies'], static fn(array $reply): bool => ($reply['id'] ?? '') !== $replyId && ($reply['parent_reply_id'] ?? '') !== $replyId));
+            $thread['reply_count'] = count($thread['replies']);
+            $changed = $changed || count($thread['replies']) !== $before;
+        }
+        break;
+    }
+    unset($thread);
+    if ($changed) {
+        write_board_threads_raw($boardKey, $threads);
+    }
+    return $changed;
 }

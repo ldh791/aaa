@@ -4,4 +4,5 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+RewriteRule ^mod-([A-Za-z0-9_-]+)/?$ admin.php?admin_key=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9_]+)/?$ board.php?board=$1 [L,QSA]

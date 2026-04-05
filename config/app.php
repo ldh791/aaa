@@ -28,6 +28,11 @@ return [
             'accent' => 'sky',
         ],
     ],
+    'admin' => [
+        'gate_key' => getenv('ADMIN_GATE_KEY') ?: 'momo-entry',
+        'username' => getenv('ADMIN_USERNAME') ?: 'admin',
+        'password' => getenv('ADMIN_PASSWORD') ?: 'change-this-now',
+    ],
     'db' => [
         'driver' => getenv('DB_DRIVER') ?: 'pgsql',
         'host' => getenv('DB_HOST') ?: '127.0.0.1',

@@ -57,8 +57,10 @@ final class PostAction
         if ($isReply) {
             $ok = $repo->createReply($boardKey, $threadId, $payload);
             if (!$ok) {
-                flash_set('error', '대상 스레드를 찾지 못했습니다.');
-                redirect(board_url($boardKey));
+                $thread = $repo->findThread($boardKey, $threadId);
+                $message = $thread === null ? '대상 스레드를 찾지 못했습니다.' : (!empty($thread['locked']) ? '잠긴 스레드에는 새 댓글을 달 수 없습니다.' : '답글 등록에 실패했습니다.');
+                flash_set('error', $message);
+                redirect($thread === null ? board_url($boardKey) : $returnTo);
             }
             flash_set('success', '답글이 등록되었습니다.');
             redirect($returnTo);
