@@ -1,0 +1,10 @@
+{
+    "site": {
+        "allow_anonymous": true,
+        "members_only_posting": false,
+        "max_upload_mb": 5,
+        "reply_depth_limit": 100,
+        "auto_lock_reply_count": 250
+    },
+    "boards": []
+}

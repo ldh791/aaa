@@ -80,12 +80,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
+  const mobileReplyDock = document.querySelector('[data-mobile-reply-dock]');
+  const mobileReplyForm = document.querySelector('[data-mobile-reply-form]');
+  const mobileReplyTitle = document.querySelector('[data-mobile-reply-title]');
+  const mobileReplyMeta = document.querySelector('[data-mobile-reply-meta]');
+  const mobileReplyClose = document.querySelector('[data-mobile-reply-close]');
+
+  const openMobileReply = (button) => {
+    if (!(mobileReplyDock instanceof HTMLElement) || !(mobileReplyForm instanceof HTMLFormElement)) return;
+    const board = button.getAttribute('data-board') || '';
+    const thread = button.getAttribute('data-thread') || '';
+    const parent = button.getAttribute('data-parent') || '';
+    const label = button.getAttribute('data-label') || '답글 작성';
+    const returnTo = button.getAttribute('data-return') || window.location.pathname;
+    mobileReplyDock.classList.remove('is-collapsed');
+    document.body.classList.add('mobile-reply-open');
+    mobileReplyForm.action = `/post.php?board=${encodeURIComponent(board)}&thread=${encodeURIComponent(thread)}`;
+    const boardInput = mobileReplyForm.querySelector('[data-mobile-reply-board]');
+    const threadInput = mobileReplyForm.querySelector('[data-mobile-reply-thread]');
+    const parentInput = mobileReplyForm.querySelector('[data-mobile-reply-parent]');
+    const returnInput = mobileReplyForm.querySelector('[data-mobile-reply-return]');
+    if (boardInput) boardInput.value = board;
+    if (threadInput) threadInput.value = thread;
+    if (parentInput) parentInput.value = parent;
+    if (returnInput) returnInput.value = returnTo;
+    if (mobileReplyTitle) mobileReplyTitle.textContent = label;
+    if (mobileReplyMeta) mobileReplyMeta.textContent = parent ? '선택한 댓글 아래로 답글이 등록됩니다.' : '선택한 스레드 아래로 댓글이 등록됩니다.';
+    const commentField = mobileReplyForm.querySelector('textarea[name="comment"]');
+    if (commentField instanceof HTMLTextAreaElement) {
+      window.setTimeout(() => commentField.focus(), 120);
+    }
+  };
+
+  if (mobileReplyClose && mobileReplyDock) {
+    mobileReplyClose.addEventListener('click', () => {
+      mobileReplyDock.classList.add('is-collapsed');
+      document.body.classList.remove('mobile-reply-open');
+    });
+  }
+
   document.querySelectorAll('[data-toggle-target]').forEach((button) => {
     button.addEventListener('click', () => {
       const id = button.getAttribute('data-toggle-target');
       const group = button.getAttribute('data-toggle-group');
       const panel = id ? document.getElementById(id) : null;
       if (!panel) return;
+
+      if (button.hasAttribute('data-mobile-reply-button') && window.innerWidth <= 960) {
+        openMobileReply(button);
+        return;
+      }
 
       if (group) {
         document.querySelectorAll(`[data-toggle-group="${group}"]`).forEach((peerButton) => {

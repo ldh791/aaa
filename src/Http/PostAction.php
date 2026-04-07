@@ -7,11 +7,11 @@ final class PostAction
 {
     public function handle(): never
     {
-        $boardKey = query_value('board');
+        $boardKey = query_value('board') ?: posted_value('board');
         board_or_404($boardKey);
 
         $isReply = query_value('thread') !== '';
-        $threadId = query_value('thread');
+        $threadId = query_value('thread') ?: posted_value('thread_id');
 
         $name = text_limit(posted_value('name') ?: (auth_user()['username'] ?? '익명'), 30);
         $subject = text_limit(posted_value('subject'), 80);
@@ -20,6 +20,15 @@ final class PostAction
         $parentReplyId = posted_value('parent_reply_id');
 
         $errors = [];
+        $auth = auth_user();
+        $settings = site_settings();
+        if (!($settings['site']['allow_anonymous'] ?? true) && !$auth) {
+            $errors[] = '현재는 회원만 글을 작성할 수 있습니다.';
+        }
+        if (($settings['site']['members_only_posting'] ?? false) && !$auth) {
+            $errors[] = '회원 전용 글쓰기 설정이 활성화되어 있습니다.';
+        }
+        $errors = array_merge($errors, moderation_guard_errors($name, $comment, $auth['id'] ?? null, $_FILES['image']['tmp_name'] ?? null));
         if (!$isReply && $subject === '' && $comment === '' && empty($_FILES['image']['name'])) {
             $errors[] = '새 스레드는 제목, 내용, 이미지 중 하나는 있어야 합니다.';
         }
@@ -39,7 +48,6 @@ final class PostAction
             redirect($returnTo);
         }
 
-        $auth = auth_user();
         $payload = [
             'name' => $name,
             'subject' => $subject,
@@ -61,6 +69,14 @@ final class PostAction
                 $message = $thread === null ? '대상 스레드를 찾지 못했습니다.' : (!empty($thread['locked']) ? '잠긴 스레드에는 새 댓글을 달 수 없습니다.' : '답글 등록에 실패했습니다.');
                 flash_set('error', $message);
                 redirect($thread === null ? board_url($boardKey) : $returnTo);
+            }
+            $updatedThread = $repo->findThread($boardKey, $threadId);
+            if ($updatedThread) {
+                $settings = site_settings();
+                $autoLock = (int) (($settings['site']['auto_lock_reply_count'] ?? 0));
+                if ($autoLock > 0 && count($updatedThread['replies'] ?? []) >= $autoLock) {
+                    admin_thread_action($boardKey, $threadId, 'toggle_lock');
+                }
             }
             flash_set('success', '답글이 등록되었습니다.');
             redirect($returnTo);

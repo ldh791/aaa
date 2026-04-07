@@ -31,7 +31,7 @@ return [
     'admin' => [
         'gate_key' => getenv('ADMIN_GATE_KEY') ?: 'momo-entry',
         'username' => getenv('ADMIN_USERNAME') ?: 'admin',
-        'password' => getenv('ADMIN_PASSWORD') ?: 'change-this-now',
+        'password' => getenv('ADMIN_PASSWORD') ?: 'admin',
     ],
     'db' => [
         'driver' => getenv('DB_DRIVER') ?: 'pgsql',

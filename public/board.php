@@ -166,6 +166,7 @@ $previewBatchCount = board_preview_batch_count();
             <?php endforeach; ?>
         </main>
     </div>
+<?php render_mobile_reply_dock($boardKey); ?>
 </div>
 </body>
 </html>

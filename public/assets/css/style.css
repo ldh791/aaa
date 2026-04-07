@@ -1181,3 +1181,100 @@ textarea { resize: vertical; min-height: 132px; }
   .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-post-head { flex-direction: column; }
 }
+
+.post-report-action {
+  color: #d1546f;
+  font-size: 1.05rem;
+}
+.report-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+.report-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(41, 22, 31, .35);
+}
+.report-modal-sheet {
+  position: relative;
+  width: min(520px, calc(100% - 28px));
+  margin: 10vh auto 0;
+  border-radius: 22px;
+  padding: 18px;
+}
+.report-modal-head,
+.mobile-reply-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mobile-reply-dock {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(45, 28, 39, .26);
+}
+.mobile-reply-sheet {
+  width: min(620px, 100%);
+  border-radius: 26px;
+  padding: 18px;
+  max-height: min(78vh, 760px);
+  overflow: auto;
+}
+.admin-page-shell { max-width: 1240px; }
+.admin-layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.admin-nav-card {
+  position: sticky;
+  top: 16px;
+  border-radius: 24px;
+  padding: 14px;
+}
+.admin-nav-list { display: grid; gap: 10px; }
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.82);
+  font-weight: 700;
+}
+.admin-nav-link.is-active { background: rgba(255, 224, 236, .95); }
+.admin-content-stack { display: grid; gap: 18px; }
+.admin-log-preview {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(255,255,255,.72);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+  color: var(--muted);
+}
+@media (min-width: 961px) {
+  .mobile-reply-dock { display: none !important; }
+}
+@media (max-width: 960px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-nav-card {
+    position: static;
+  }
+  .admin-nav-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

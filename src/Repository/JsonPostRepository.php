@@ -77,6 +77,13 @@ final class JsonPostRepository implements PostRepositoryInterface
             if ($parentReplyId !== '' && !$this->replyExists($thread, $parentReplyId)) {
                 $parentReplyId = '';
             }
+            if ($parentReplyId !== '') {
+                $settings = \site_settings();
+                $limit = (int) (($settings['site']['reply_depth_limit'] ?? 100));
+                if ($limit > 0 && $this->replyDepth($thread, $parentReplyId) >= $limit) {
+                    $parentReplyId = $this->replyParentId($thread, $parentReplyId) ?: $parentReplyId;
+                }
+            }
 
             $thread['replies'][] = [
                 'id' => $this->nextId(),
@@ -288,6 +295,36 @@ final class JsonPostRepository implements PostRepositoryInterface
             'created_at' => (string) ($post['created_at'] ?? ''),
             'score' => $score,
         ];
+    }
+
+
+    private function replyParentId(array $thread, string $replyId): ?string
+    {
+        foreach (($thread['replies'] ?? []) as $reply) {
+            if (($reply['id'] ?? '') === $replyId) {
+                $parent = (string) ($reply['parent_reply_id'] ?? '');
+                return $parent !== '' ? $parent : null;
+            }
+        }
+        return null;
+    }
+
+    private function replyDepth(array $thread, string $replyId): int
+    {
+        $depth = 0;
+        $current = $replyId;
+        while ($current !== '') {
+            $parent = $this->replyParentId($thread, $current);
+            if ($parent === null) {
+                break;
+            }
+            $depth++;
+            $current = $parent;
+            if ($depth > 1000) {
+                break;
+            }
+        }
+        return $depth + 1;
     }
 
     private function lower(string $value): string

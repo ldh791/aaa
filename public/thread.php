@@ -139,6 +139,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
             </section>
         </section>
     </main>
+<?php render_mobile_reply_dock($boardKey); ?>
 </div>
 </body>
 </html>
