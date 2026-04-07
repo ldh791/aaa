@@ -21,9 +21,37 @@ $initialReplyCount = thread_preview_initial_count();
 $replyBatchCount = thread_preview_batch_count();
 $replyIndex = 0;
 
-$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, &$replyIndex, $boardKey, $threadId, $displayNumbers, $initialReplyCount): void {
+$renderFlatBundleReply = static function (array $reply) use ($boardKey, $threadId, $displayNumbers): void {
+    ?>
+    <article class="reply-card glass-card reply-bundle-item reply-depth-flat" id="post-<?= e((string) $reply['id']) ?>">
+        <div class="thread-meta">
+            <p class="thread-subject-line"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?></p>
+            <p class="thread-meta-line">
+                <span class="meta-left">
+                    <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span>
+                    <span><?= e(render_time($reply['created_at'])) ?></span>
+                </span>
+            </p>
+        </div>
+        <?php if (!empty($reply['parent_reply_id'])): ?>
+            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 연결된 답글</p>
+        <?php endif; ?>
+        <?php if (!empty($reply['image'])): ?>
+            <a class="detail-image-link" href="<?= e(public_upload_url($reply['image'])) ?>" target="_blank" rel="noreferrer">
+                <img class="thread-image reply-image" src="<?= e(public_upload_url($reply['image'])) ?>" alt="reply image">
+            </a>
+        <?php endif; ?>
+        <?php if (!empty($reply['comment'])): ?>
+            <div class="thread-body reply-body"><?= nl2br(e((string) $reply['comment'])) ?></div>
+        <?php endif; ?>
+        <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
+    </article>
+    <?php
+};
+
+$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $renderFlatBundleReply, &$replyIndex, $boardKey, $threadId, $displayNumbers, $initialReplyCount): void {
     $currentIndex = $replyIndex++;
-    $depthClass = 'reply-depth-' . min($depth, 2);
+    $depthClass = 'reply-depth-' . min($depth, 1);
     $collapsedClass = $currentIndex >= $initialReplyCount ? ' is-collapsed' : '';
     ?>
     <article class="reply-card glass-card <?= e($depthClass) ?><?= e($collapsedClass) ?>" id="post-<?= e((string) $reply['id']) ?>" data-preview-item>
@@ -55,11 +83,25 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
         <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
 
         <?php if (!empty($reply['children'])): ?>
-            <div class="nested-reply-list">
-                <?php foreach ($reply['children'] as $child): ?>
-                    <?php $renderReplyNode($child, $depth + 1); ?>
-                <?php endforeach; ?>
-            </div>
+            <?php if ($depth >= 1): ?>
+                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'reply-bundle-' . (string) $reply['id']; ?>
+                <div class="reply-bundle">
+                    <div class="reply-bundle-head">
+                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>">더보기 답글 <?= e((string) count($bundleReplies)) ?></button>
+                    </div>
+                    <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
+                        <?php foreach ($bundleReplies as $bundleReply): ?>
+                            <?php $renderFlatBundleReply($bundleReply); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="nested-reply-list">
+                    <?php foreach ($reply['children'] as $child): ?>
+                        <?php $renderReplyNode($child, $depth + 1); ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </article>
     <?php

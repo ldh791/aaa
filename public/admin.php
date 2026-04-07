@@ -182,7 +182,7 @@ $menu = [
     <script defer src="/assets/js/app.js"></script>
 </head>
 <body class="theme-board accent-strawberry sidebar-layout admin-mode-body">
-<div class="page-shell compact-shell admin-page-shell">
+<div class="page-shell admin-page-shell admin-shell">
     <header class="topbar glass-card admin-topbar">
         <div>
             <p class="eyebrow">Admin</p>
@@ -215,6 +215,10 @@ $menu = [
     <?php else: ?>
         <div class="admin-layout">
             <aside class="glass-card admin-nav-card">
+                <div class="admin-nav-head">
+                    <p class="eyebrow">관리 메뉴</p>
+                    <strong>빠른 이동</strong>
+                </div>
                 <nav class="admin-nav-list">
                     <?php foreach ($menu as $key => $label): ?>
                         <a class="admin-nav-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>

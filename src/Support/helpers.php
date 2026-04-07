@@ -512,21 +512,23 @@ function render_mobile_reply_dock(string $boardKey): void
     $auth = auth_user();
     ?>
     <section id="mobile-reply-dock" class="mobile-reply-dock is-collapsed" data-mobile-reply-dock>
-        <div class="mobile-reply-sheet glass-card">
+        <div class="mobile-reply-backdrop" data-mobile-reply-close></div>
+        <div class="mobile-reply-sheet glass-card" role="dialog" aria-modal="true" aria-labelledby="mobile-reply-title">
             <div class="mobile-reply-head">
-                <div>
-                    <strong data-mobile-reply-title>답글 작성</strong>
-                    <p data-mobile-reply-meta>선택한 게시물 아래로 댓글이 등록됩니다.</p>
+                <div class="mobile-reply-copy">
+                    <p class="eyebrow">빠른 답글</p>
+                    <strong id="mobile-reply-title" class="mobile-reply-title"><span class="mobile-reply-marker" data-mobile-reply-title>답글 작성</span></strong>
+                    <p class="mobile-reply-meta" data-mobile-reply-meta>선택한 게시물 아래로 댓글이 등록됩니다.</p>
                 </div>
-                <button type="button" class="reply-context-clear" data-mobile-reply-close>닫기</button>
+                <button type="button" class="mobile-reply-close-button" data-mobile-reply-close aria-label="닫기">닫기</button>
             </div>
-            <form action="/post.php" method="post" enctype="multipart/form-data" class="stack-form compact-form" data-mobile-reply-form>
+            <form action="/post.php" method="post" enctype="multipart/form-data" class="stack-form compact-form mobile-reply-form" data-mobile-reply-form>
                 <input type="hidden" name="board" value="<?= e($boardKey) ?>" data-mobile-reply-board>
                 <input type="hidden" name="thread_id" value="" data-mobile-reply-thread>
                 <input type="hidden" name="parent_reply_id" value="" data-mobile-reply-parent>
                 <input type="hidden" name="return_to" value="" data-mobile-reply-return>
                 <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
-                <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
+                <label><span>내용</span><textarea name="comment" rows="4" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
                 <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
                 <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required></label>
                 <button class="button-primary" type="submit">등록</button>
@@ -660,6 +662,23 @@ function build_reply_tree(array $replies): array
     return $walk('');
 }
 
+
+function flatten_descendant_replies(array $children): array
+{
+    $flat = [];
+    $walk = static function (array $nodes) use (&$walk, &$flat): void {
+        foreach ($nodes as $node) {
+            $copy = $node;
+            unset($copy['children']);
+            $flat[] = $copy;
+            if (!empty($node['children']) && is_array($node['children'])) {
+                $walk($node['children']);
+            }
+        }
+    };
+    $walk($children);
+    return $flat;
+}
 
 function all_board_threads_raw(): array
 {

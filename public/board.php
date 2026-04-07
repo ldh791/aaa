@@ -85,10 +85,32 @@ $previewBatchCount = board_preview_batch_count();
                 $displayNumbers = thread_display_number_map($thread);
                 $replyTree = build_reply_tree($thread['replies'] ?? []);
                 $previewIndex = 0;
-                $replyRender = static function (array $reply, int $depth = 0) use (&$replyRender, &$previewIndex, $boardKey, $thread, $displayNumbers, $initialPreviewCount): void {
+                $renderFlatBoardBundleReply = static function (array $reply) use ($boardKey, $thread, $displayNumbers): void {
+                    ?>
+                    <article class="reply-card glass-card board-reply-card reply-bundle-item reply-depth-flat" id="post-<?= e((string) $reply['id']) ?>">
+                        <div class="thread-meta">
+                            <p class="thread-meta-line">
+                                <span class="meta-left">
+                                    <strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?>
+                                    <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span>
+                                    <span><?= e(render_time($reply['created_at'])) ?></span>
+                                </span>
+                            </p>
+                        </div>
+                        <?php if (!empty($reply['parent_reply_id'])): ?>
+                            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 연결된 답글</p>
+                        <?php endif; ?>
+                        <?php if (!empty($reply['comment'])): ?>
+                            <div class="thread-body reply-body"><?= nl2br(e(text_preview((string) $reply['comment'], 220))) ?></div>
+                        <?php endif; ?>
+                        <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
+                    </article>
+                    <?php
+                };
+                $replyRender = static function (array $reply, int $depth = 0) use (&$replyRender, $renderFlatBoardBundleReply, &$previewIndex, $boardKey, $thread, $displayNumbers, $initialPreviewCount): void {
                     $currentIndex = $previewIndex++;
                     $isCollapsed = $currentIndex >= $initialPreviewCount;
-                    $depthClass = 'reply-depth-' . min($depth, 2);
+                    $depthClass = 'reply-depth-' . min($depth, 1);
                     ?>
                     <article class="reply-card glass-card board-reply-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>" data-preview-item>
                         <div class="thread-meta">
@@ -108,11 +130,25 @@ $previewBatchCount = board_preview_batch_count();
                         <?php endif; ?>
                         <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                         <?php if (!empty($reply['children'])): ?>
-                            <div class="nested-reply-list">
-                                <?php foreach ($reply['children'] as $child): ?>
-                                    <?php $replyRender($child, $depth + 1); ?>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php if ($depth >= 1): ?>
+                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; ?>
+                                <div class="reply-bundle">
+                                    <div class="reply-bundle-head">
+                                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>">더보기 답글 <?= e((string) count($bundleReplies)) ?></button>
+                                    </div>
+                                    <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
+                                        <?php foreach ($bundleReplies as $bundleReply): ?>
+                                            <?php $renderFlatBoardBundleReply($bundleReply); ?>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="nested-reply-list">
+                                    <?php foreach ($reply['children'] as $child): ?>
+                                        <?php $replyRender($child, $depth + 1); ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </article>
                     <?php

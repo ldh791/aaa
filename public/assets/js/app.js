@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileReplyForm = document.querySelector('[data-mobile-reply-form]');
   const mobileReplyTitle = document.querySelector('[data-mobile-reply-title]');
   const mobileReplyMeta = document.querySelector('[data-mobile-reply-meta]');
-  const mobileReplyClose = document.querySelector('[data-mobile-reply-close]');
+  const mobileReplyCloseButtons = document.querySelectorAll('[data-mobile-reply-close]');
 
   const openMobileReply = (button) => {
     if (!(mobileReplyDock instanceof HTMLElement) || !(mobileReplyForm instanceof HTMLFormElement)) return;
@@ -113,10 +113,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  if (mobileReplyClose && mobileReplyDock) {
-    mobileReplyClose.addEventListener('click', () => {
-      mobileReplyDock.classList.add('is-collapsed');
-      document.body.classList.remove('mobile-reply-open');
+  if (mobileReplyDock) {
+    mobileReplyCloseButtons.forEach((element) => {
+      element.addEventListener('click', () => {
+        mobileReplyDock.classList.add('is-collapsed');
+        document.body.classList.remove('mobile-reply-open');
+      });
     });
   }
 
