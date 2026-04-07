@@ -213,6 +213,17 @@ $menu = [
             </form>
         </section>
     <?php else: ?>
+        <section class="glass-card admin-toolbar-panel">
+            <div class="admin-toolbar-head">
+                <p class="eyebrow">관리 메뉴</p>
+                <strong>원하는 관리 화면으로 바로 이동하세요.</strong>
+            </div>
+            <nav class="admin-toolbar-nav" aria-label="관리자 메뉴">
+                <?php foreach ($menu as $key => $label): ?>
+                    <a class="admin-toolbar-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
+                <?php endforeach; ?>
+            </nav>
+        </section>
         <div class="admin-layout">
             <aside class="glass-card admin-nav-card">
                 <div class="admin-nav-head">

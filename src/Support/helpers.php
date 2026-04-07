@@ -680,6 +680,42 @@ function flatten_descendant_replies(array $children): array
     return $flat;
 }
 
+
+function reply_lookup_map(array $thread): array
+{
+    $lookup = [];
+    $lookup[(string) ($thread['id'] ?? '')] = $thread;
+    foreach (($thread['replies'] ?? []) as $reply) {
+        $lookup[(string) ($reply['id'] ?? '')] = $reply;
+    }
+    return $lookup;
+}
+
+function group_replies_by_parent(array $replies): array
+{
+    $grouped = [];
+    foreach ($replies as $reply) {
+        $parentId = (string) ($reply['parent_reply_id'] ?? '');
+        $grouped[$parentId][] = $reply;
+    }
+    return $grouped;
+}
+
+function render_bundle_group_quote(array $parentPost, array $displayNumbers): void
+{
+    $parentId = (string) ($parentPost['id'] ?? '');
+    $parentNo = (string) ($displayNumbers[$parentId] ?? $parentId);
+    $preview = text_preview(trim((string) ($parentPost['comment'] ?? '')), 90);
+    if ($preview === '') {
+        $preview = '내용 없음';
+    }
+    ?>
+    <div class="reply-bundle-group-head">
+        <span class="reply-bundle-target">댓글 No.<?= e($parentNo) ?></span>
+        <p class="reply-bundle-quote"><?= e($preview) ?></p>
+    </div>
+    <?php
+}
 function all_board_threads_raw(): array
 {
     $all = [];

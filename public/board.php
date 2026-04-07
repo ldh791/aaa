@@ -84,6 +84,7 @@ $previewBatchCount = board_preview_batch_count();
                 <?php
                 $displayNumbers = thread_display_number_map($thread);
                 $replyTree = build_reply_tree($thread['replies'] ?? []);
+                $replyLookup = reply_lookup_map($thread);
                 $previewIndex = 0;
                 $renderFlatBoardBundleReply = static function (array $reply) use ($boardKey, $thread, $displayNumbers): void {
                     ?>
@@ -131,14 +132,23 @@ $previewBatchCount = board_preview_batch_count();
                         <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                         <?php if (!empty($reply['children'])): ?>
                             <?php if ($depth >= 1): ?>
-                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; ?>
+                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; $bundleGroups = group_replies_by_parent($bundleReplies); ?>
                                 <div class="reply-bundle">
                                     <div class="reply-bundle-head">
-                                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>">더보기 답글 <?= e((string) count($bundleReplies)) ?></button>
+                                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>"><span class="reply-bundle-toggle-label">더보기 답글</span><strong><?= e((string) count($bundleReplies)) ?></strong></button>
                                     </div>
                                     <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
-                                        <?php foreach ($bundleReplies as $bundleReply): ?>
-                                            <?php $renderFlatBoardBundleReply($bundleReply); ?>
+                                        <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
+                                            <section class="reply-bundle-group glass-card">
+                                                <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
+                                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
+                                                <?php endif; ?>
+                                                <div class="reply-bundle-group-list">
+                                                    <?php foreach ($groupReplies as $bundleReply): ?>
+                                                        <?php $renderFlatBoardBundleReply($bundleReply); ?>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </section>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>

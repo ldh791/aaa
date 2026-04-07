@@ -84,14 +84,23 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
 
         <?php if (!empty($reply['children'])): ?>
             <?php if ($depth >= 1): ?>
-                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'reply-bundle-' . (string) $reply['id']; ?>
+                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'reply-bundle-' . (string) $reply['id']; $bundleGroups = group_replies_by_parent($bundleReplies); ?>
                 <div class="reply-bundle">
                     <div class="reply-bundle-head">
-                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>">더보기 답글 <?= e((string) count($bundleReplies)) ?></button>
+                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>"><span class="reply-bundle-toggle-label">더보기 답글</span><strong><?= e((string) count($bundleReplies)) ?></strong></button>
                     </div>
                     <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
-                        <?php foreach ($bundleReplies as $bundleReply): ?>
-                            <?php $renderFlatBundleReply($bundleReply); ?>
+                        <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
+                            <section class="reply-bundle-group glass-card">
+                                <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
+                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
+                                <?php endif; ?>
+                                <div class="reply-bundle-group-list">
+                                    <?php foreach ($groupReplies as $bundleReply): ?>
+                                        <?php $renderFlatBundleReply($bundleReply); ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            </section>
                         <?php endforeach; ?>
                     </div>
                 </div>
