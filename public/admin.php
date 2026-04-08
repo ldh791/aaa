@@ -213,34 +213,30 @@ $menu = [
             </form>
         </section>
     <?php else: ?>
+        <section class="glass-card admin-toolbar-panel">
+            <div class="admin-toolbar-head">
+                <p class="eyebrow">관리 메뉴</p>
+                <strong>원하는 관리 화면으로 바로 이동하세요.</strong>
+            </div>
+            <nav class="admin-toolbar-nav" aria-label="관리자 메뉴">
+                <?php foreach ($menu as $key => $label): ?>
+                    <a class="admin-toolbar-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
+                <?php endforeach; ?>
+            </nav>
+        </section>
         <div class="admin-layout">
             <aside class="glass-card admin-nav-card">
                 <div class="admin-nav-head">
                     <p class="eyebrow">관리 메뉴</p>
-                    <strong>기능 이동</strong>
-                    <p class="muted">자주 쓰는 관리자 기능을 한곳에 모았습니다.</p>
+                    <strong>빠른 이동</strong>
                 </div>
-                <nav class="admin-nav-list" aria-label="관리자 메뉴">
+                <nav class="admin-nav-list">
                     <?php foreach ($menu as $key => $label): ?>
-                        <a class="admin-nav-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>">
-                            <span class="admin-nav-dot"></span>
-                            <span><?= e($label) ?></span>
-                        </a>
+                        <a class="admin-nav-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
                     <?php endforeach; ?>
                 </nav>
             </aside>
             <main class="admin-content-stack">
-                <section class="glass-card admin-mobile-tabs">
-                    <div class="admin-toolbar-head">
-                        <p class="eyebrow">빠른 이동</p>
-                        <strong>관리 화면을 선택하세요.</strong>
-                    </div>
-                    <nav class="admin-toolbar-nav" aria-label="관리자 탭">
-                        <?php foreach ($menu as $key => $label): ?>
-                            <a class="admin-toolbar-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
-                        <?php endforeach; ?>
-                    </nav>
-                </section>
                 <?php if ($tab === 'dashboard'): ?>
                     <section class="admin-stats-grid">
                         <article class="glass-card admin-stat-card"><strong><?= e((string) $stats['threads']) ?></strong><span>스레드</span></article>

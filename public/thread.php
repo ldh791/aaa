@@ -23,7 +23,7 @@ $replyIndex = 0;
 
 $renderFlatBundleReply = static function (array $reply) use ($boardKey, $threadId, $displayNumbers): void {
     ?>
-    <div class="reply-bundle-entry" id="post-<?= e((string) $reply['id']) ?>">
+    <article class="reply-card glass-card reply-bundle-item reply-depth-flat" id="post-<?= e((string) $reply['id']) ?>">
         <div class="thread-meta">
             <p class="thread-subject-line"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?></p>
             <p class="thread-meta-line">
@@ -45,7 +45,7 @@ $renderFlatBundleReply = static function (array $reply) use ($boardKey, $threadI
             <div class="thread-body reply-body"><?= nl2br(e((string) $reply['comment'])) ?></div>
         <?php endif; ?>
         <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
-    </div>
+    </article>
     <?php
 };
 
