@@ -334,7 +334,7 @@ function render_site_menu(?string $currentPath = null): void
                     <button class="button-secondary sidebar-action-button" type="submit">로그아웃</button>
                 </form>
             <?php else: ?>
-                <a class="button-secondary sidebar-action-button sidebar-login-button" href="/login.php">로그인</a>
+                <a class="button-secondary sidebar-action-button" href="/login.php">로그인</a>
             <?php endif; ?>
         </div>
     </aside>
@@ -701,7 +701,7 @@ function group_replies_by_parent(array $replies): array
     return $grouped;
 }
 
-function render_bundle_group_quote(array $parentPost, array $displayNumbers, int $replyCount = 0): void
+function render_bundle_group_quote(array $parentPost, array $displayNumbers): void
 {
     $parentId = (string) ($parentPost['id'] ?? '');
     $parentNo = (string) ($displayNumbers[$parentId] ?? $parentId);
@@ -711,12 +711,7 @@ function render_bundle_group_quote(array $parentPost, array $displayNumbers, int
     }
     ?>
     <div class="reply-bundle-group-head">
-        <div class="reply-bundle-target-row">
-            <span class="reply-bundle-target">댓글 No.<?= e($parentNo) ?></span>
-            <?php if ($replyCount > 0): ?>
-                <span class="reply-bundle-count">답글 <?= e((string) $replyCount) ?></span>
-            <?php endif; ?>
-        </div>
+        <span class="reply-bundle-target">댓글 No.<?= e($parentNo) ?></span>
         <p class="reply-bundle-quote"><?= e($preview) ?></p>
     </div>
     <?php

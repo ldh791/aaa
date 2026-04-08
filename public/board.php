@@ -88,7 +88,7 @@ $previewBatchCount = board_preview_batch_count();
                 $previewIndex = 0;
                 $renderFlatBoardBundleReply = static function (array $reply) use ($boardKey, $thread, $displayNumbers): void {
                     ?>
-                    <article class="reply-card glass-card board-reply-card reply-bundle-item reply-depth-flat" id="post-<?= e((string) $reply['id']) ?>">
+                    <div class="reply-bundle-entry board-reply-entry" id="post-<?= e((string) $reply['id']) ?>">
                         <div class="thread-meta">
                             <p class="thread-meta-line">
                                 <span class="meta-left">
@@ -105,7 +105,7 @@ $previewBatchCount = board_preview_batch_count();
                             <div class="thread-body reply-body"><?= nl2br(e(text_preview((string) $reply['comment'], 220))) ?></div>
                         <?php endif; ?>
                         <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
-                    </article>
+                    </div>
                     <?php
                 };
                 $replyRender = static function (array $reply, int $depth = 0) use (&$replyRender, $renderFlatBoardBundleReply, &$previewIndex, $boardKey, $thread, $displayNumbers, $initialPreviewCount): void {
@@ -139,9 +139,9 @@ $previewBatchCount = board_preview_batch_count();
                                     </div>
                                     <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
                                         <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
-                                            <section class="reply-bundle-group">
+                                            <section class="reply-bundle-group glass-card">
                                                 <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
-                                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers, count($groupReplies)); ?>
+                                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
                                                 <?php endif; ?>
                                                 <div class="reply-bundle-group-list">
                                                     <?php foreach ($groupReplies as $bundleReply): ?>
