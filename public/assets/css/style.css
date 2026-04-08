@@ -1596,3 +1596,115 @@ body.mobile-reply-open {
     display: none;
   }
 }
+
+
+/* final admin + reply bundle cleanup */
+.admin-layout-single {
+  display: block;
+}
+.admin-toolbar-panel {
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.admin-toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.admin-toolbar-link {
+  min-height: 52px;
+  padding: 0 18px;
+  justify-content: flex-start;
+  border-radius: 18px;
+  font-size: .98rem;
+  box-shadow: 0 10px 24px rgba(219, 186, 201, .14);
+}
+.admin-toolbar-link-label {
+  display: block;
+  line-height: 1.3;
+}
+@media (max-width: 960px) {
+  .admin-toolbar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+button.reply-bundle-toggle,
+.reply-bundle-toggle {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: 1px solid rgba(208, 181, 194, .85) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,244,248,.98)) !important;
+  color: #8a5b73 !important;
+  border-radius: 999px !important;
+  min-height: 42px;
+  padding: 0 16px !important;
+  gap: 10px;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(219, 186, 201, .16);
+}
+.reply-bundle {
+  background: rgba(255, 251, 253, .7);
+}
+.reply-bundle-list {
+  gap: 16px;
+}
+.reply-bundle-group {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 0 14px;
+  border: 0;
+  border-left: 3px solid rgba(229, 212, 220, .95);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.reply-bundle-group-head {
+  gap: 6px;
+}
+.reply-bundle-target-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.reply-bundle-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(221, 204, 212, .95);
+  color: #9b7083;
+  font-weight: 700;
+  font-size: .82rem;
+}
+.reply-bundle-quote {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #9b7f8e;
+  line-height: 1.5;
+}
+.reply-bundle-group-list {
+  gap: 10px;
+}
+.reply-bundle-item {
+  background: rgba(255,255,255,.92);
+}
+.site-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+.site-sidebar-auth {
+  order: -1;
+  margin-bottom: 12px;
+}
+.sidebar-login-button {
+  background: linear-gradient(180deg, rgba(255,241,247,.98), rgba(255,228,238,.98));
+  border-color: rgba(218, 184, 199, .95);
+  color: #8a5b73;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(219, 186, 201, .14);
+}

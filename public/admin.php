@@ -218,24 +218,15 @@ $menu = [
                 <p class="eyebrow">관리 메뉴</p>
                 <strong>원하는 관리 화면으로 바로 이동하세요.</strong>
             </div>
-            <nav class="admin-toolbar-nav" aria-label="관리자 메뉴">
+            <nav class="admin-toolbar-nav admin-toolbar-grid" aria-label="관리자 메뉴">
                 <?php foreach ($menu as $key => $label): ?>
-                    <a class="admin-toolbar-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
+                    <a class="admin-toolbar-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>">
+                        <span class="admin-toolbar-link-label"><?= e($label) ?></span>
+                    </a>
                 <?php endforeach; ?>
             </nav>
         </section>
-        <div class="admin-layout">
-            <aside class="glass-card admin-nav-card">
-                <div class="admin-nav-head">
-                    <p class="eyebrow">관리 메뉴</p>
-                    <strong>빠른 이동</strong>
-                </div>
-                <nav class="admin-nav-list">
-                    <?php foreach ($menu as $key => $label): ?>
-                        <a class="admin-nav-link<?= $tab === $key ? ' is-active' : '' ?>" href="<?= e($basePath . '?tab=' . $key) ?>"><?= e($label) ?></a>
-                    <?php endforeach; ?>
-                </nav>
-            </aside>
+        <div class="admin-layout admin-layout-single">
             <main class="admin-content-stack">
                 <?php if ($tab === 'dashboard'): ?>
                     <section class="admin-stats-grid">

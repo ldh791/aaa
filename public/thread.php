@@ -91,9 +91,9 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                     </div>
                     <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
                         <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
-                            <section class="reply-bundle-group glass-card">
+                            <section class="reply-bundle-group">
                                 <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
-                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
+                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers, count($groupReplies)); ?>
                                 <?php endif; ?>
                                 <div class="reply-bundle-group-list">
                                     <?php foreach ($groupReplies as $bundleReply): ?>
