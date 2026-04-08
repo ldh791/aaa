@@ -320,23 +320,23 @@ function render_site_menu(?string $currentPath = null): void
         <div class="site-sidebar-head">
             <button type="button" class="sidebar-collapse-button" data-menu-collapse aria-expanded="true" aria-label="메뉴 접기">&lt;</button>
         </div>
+        <div class="site-sidebar-auth site-sidebar-auth-top">
+            <?php if ($auth): ?>
+                <span class="site-sidebar-user">@<?= e($auth['username']) ?></span>
+                <form action="/auth.php" method="post" class="sidebar-form-block">
+                    <input type="hidden" name="action" value="logout">
+                    <button class="button-secondary sidebar-action-button sidebar-login-button" type="submit">로그아웃</button>
+                </form>
+            <?php else: ?>
+                <a class="button-secondary sidebar-action-button sidebar-login-button" href="/login.php">로그인</a>
+            <?php endif; ?>
+        </div>
         <nav class="site-sidebar-links">
             <?php foreach ($links as $link): ?>
                 <?php $href = (string) $link['href']; $hrefPath = strtok($href, '?') ?: $href; $isCurrent = $currentUri === $href || ($hrefPath === $currentPath && strpos($href, '?') === false); ?>
                 <a class="site-sidebar-link<?= $isCurrent ? ' is-active' : '' ?>" href="<?= e($link['href']) ?>"><?= e($link['label']) ?></a>
             <?php endforeach; ?>
         </nav>
-        <div class="site-sidebar-auth">
-            <?php if ($auth): ?>
-                <span class="site-sidebar-user">@<?= e($auth['username']) ?></span>
-                <form action="/auth.php" method="post" class="sidebar-form-block">
-                    <input type="hidden" name="action" value="logout">
-                    <button class="button-secondary sidebar-action-button" type="submit">로그아웃</button>
-                </form>
-            <?php else: ?>
-                <a class="button-secondary sidebar-action-button" href="/login.php">로그인</a>
-            <?php endif; ?>
-        </div>
     </aside>
     <?php
 }

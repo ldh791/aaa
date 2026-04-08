@@ -121,6 +121,23 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+  const reportModals = Array.from(document.querySelectorAll('.report-modal'));
+  const syncReportModalState = () => {
+    const hasOpenReport = reportModals.some((modal) => !modal.classList.contains('is-collapsed'));
+    document.body.classList.toggle('report-modal-open', hasOpenReport);
+  };
+
+  reportModals.forEach((modal) => {
+    document.body.appendChild(modal);
+  });
+
+  document.querySelectorAll('[data-toggle-target]').forEach((button) => {
+    const targetId = button.getAttribute('data-toggle-target') || '';
+    if (!targetId.startsWith('report-modal-')) return;
+    button.addEventListener('click', () => {
+      window.setTimeout(syncReportModalState, 0);
+    });
+  });
 
   document.querySelectorAll('[data-toggle-target]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -146,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const willOpen = panel.classList.contains('is-collapsed');
       panel.classList.toggle('is-collapsed');
+      syncReportModalState();
       if (willOpen) {
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
