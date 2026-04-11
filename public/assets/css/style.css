@@ -93,12 +93,15 @@ body.menu-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
 .site-sidebar-user { color: var(--muted); }
 .sidebar-form-block { margin: 0; }
 .sidebar-action-button { width: 100%; justify-content: center; }
-.sidebar-login-button {
-  background: linear-gradient(180deg, rgba(255, 244, 248, .98), rgba(255, 230, 239, .98));
-  border-color: rgba(214, 180, 194, .92);
-  color: #8a5b73;
+.site-sidebar .sidebar-login-button {
+  background: linear-gradient(180deg, #fff1f6 0%, #ffdbe8 100%);
+  border: 1px solid rgba(203, 131, 164, .58);
+  color: #8a4f69;
   font-weight: 800;
-  box-shadow: 0 8px 18px rgba(214, 184, 196, .14);
+  box-shadow: 0 10px 22px rgba(214, 150, 178, .20);
+}
+.site-sidebar .sidebar-login-button:hover {
+  background: linear-gradient(180deg, #ffe8f1 0%, #ffd1e2 100%);
 }
 .sidebar-register-link {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1781,4 +1784,16 @@ body.report-modal-open {
   .admin-toolbar-link {
     flex: 0 0 auto;
   }
+}
+
+.readonly-field input[readonly],
+.readonly-field input:disabled {
+  background: rgba(250, 245, 248, .96);
+  color: var(--text);
+  font-weight: 600;
+  opacity: 1;
+  cursor: default;
+}
+.readonly-field span {
+  font-weight: 700;
 }
