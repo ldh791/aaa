@@ -191,4 +191,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateVisibility();
   });
+
+
+  const rememberNameKey = 'momo_post_name';
+  const rememberPasswordKey = 'momo_post_password';
+  const rememberedName = window.localStorage.getItem(rememberNameKey) || '';
+  const rememberedPassword = window.localStorage.getItem(rememberPasswordKey) || '';
+
+  document.querySelectorAll('form[data-remember-post]').forEach((form) => {
+    const nameInput = form.querySelector('[data-remember-name]');
+    const passwordInput = form.querySelector('[data-remember-password]');
+
+    if (nameInput instanceof HTMLInputElement && !nameInput.readOnly && nameInput.value.trim() === '' && rememberedName) {
+      nameInput.value = rememberedName;
+    }
+    if (passwordInput instanceof HTMLInputElement && passwordInput.value === '' && rememberedPassword) {
+      passwordInput.value = rememberedPassword;
+    }
+
+    if (nameInput instanceof HTMLInputElement) {
+      nameInput.addEventListener('input', () => {
+        window.localStorage.setItem(rememberNameKey, nameInput.value);
+      });
+    }
+    if (passwordInput instanceof HTMLInputElement) {
+      passwordInput.addEventListener('input', () => {
+        window.localStorage.setItem(rememberPasswordKey, passwordInput.value);
+      });
+    }
+
+    form.addEventListener('submit', () => {
+      if (nameInput instanceof HTMLInputElement && !nameInput.readOnly) {
+        window.localStorage.setItem(rememberNameKey, nameInput.value);
+      }
+      if (passwordInput instanceof HTMLInputElement) {
+        window.localStorage.setItem(rememberPasswordKey, passwordInput.value);
+      }
+    });
+  });
 });

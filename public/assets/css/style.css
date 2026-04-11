@@ -94,11 +94,11 @@ body.menu-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
 .sidebar-form-block { margin: 0; }
 .sidebar-action-button { width: 100%; justify-content: center; }
 .sidebar-login-button {
-  background: linear-gradient(180deg, rgba(255, 244, 248, .98), rgba(255, 230, 239, .98));
-  border-color: rgba(214, 180, 194, .92);
-  color: #8a5b73;
-  font-weight: 800;
-  box-shadow: 0 8px 18px rgba(214, 184, 196, .14);
+  background: linear-gradient(180deg, rgba(255, 236, 244, 1), rgba(255, 220, 233, 1));
+  border-color: rgba(207, 153, 177, .96);
+  color: #7e4963;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(214, 184, 196, .22);
 }
 .sidebar-register-link {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1740,8 +1740,8 @@ body.report-modal-open {
   border-top: 1px dashed rgba(224, 211, 217, .74);
 }
 .reply-bundle-entry {
-  padding: 10px 0 0 14px;
-  border-left: 2px solid rgba(217, 189, 200, .62);
+  padding: 8px 0 0;
+  border-left: 0;
   background: transparent;
   border-radius: 0;
 }
@@ -1757,7 +1757,7 @@ body.report-modal-open {
   margin: 8px 0 10px;
 }
 .board-reply-entry {
-  border-left-color: rgba(210, 189, 221, .72);
+  border-left: 0;
 }
 @media (max-width: 960px) {
   .admin-layout {
@@ -1782,3 +1782,14 @@ body.report-modal-open {
     flex: 0 0 auto;
   }
 }
+
+.readonly-meta-field {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.7);
+}
+.readonly-meta-field span { color: var(--muted); font-size: .92rem; }
+.readonly-meta-field strong { font-size: 1rem; }
