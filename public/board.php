@@ -50,7 +50,7 @@ $previewBatchCount = board_preview_batch_count();
                 <input type="hidden" name="return_to" value="<?= e(board_url($boardKey)) ?>">
                 <label>
                     <span>이름</span>
-                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name autocomplete="nickname">
+                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>">
                 </label>
                 <label>
                     <span>제목</span>
@@ -66,7 +66,7 @@ $previewBatchCount = board_preview_batch_count();
                 </label>
                 <label>
                     <span>게시물 비밀번호</span>
-                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')" data-remember-password autocomplete="off">
+                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')">
                 </label>
                 <button class="button-primary" type="submit">스레드 등록</button>
             </form>

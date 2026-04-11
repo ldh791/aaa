@@ -497,10 +497,10 @@ function render_inline_reply_form(string $boardKey, string $threadId, string $pa
         <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($threadId) ?>" method="post" enctype="multipart/form-data" class="stack-form compact-form">
             <input type="hidden" name="parent_reply_id" value="<?= e($parentReplyId) ?>">
             <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-            <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name autocomplete="nickname"></label>
+            <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
             <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
             <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
-            <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')" data-remember-password autocomplete="off"></label>
+            <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')"></label>
             <button class="button-primary" type="submit">등록</button>
         </form>
     </section>
@@ -527,10 +527,10 @@ function render_mobile_reply_dock(string $boardKey): void
                 <input type="hidden" name="thread_id" value="" data-mobile-reply-thread>
                 <input type="hidden" name="parent_reply_id" value="" data-mobile-reply-parent>
                 <input type="hidden" name="return_to" value="" data-mobile-reply-return>
-                <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name autocomplete="nickname"></label>
+                <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
                 <label><span>내용</span><textarea name="comment" rows="4" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
                 <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
-                <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required data-remember-password autocomplete="off"></label>
+                <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required></label>
                 <button class="button-primary" type="submit">등록</button>
             </form>
         </div>
@@ -608,14 +608,14 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
                 <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
                     <input type="hidden" name="manage_action" value="unlock_edit">
                     <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                    <label><span>게시물 비밀번호</span><input type="password" name="post_password" required data-remember-password autocomplete="off"></label>
+                    <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
                     <button class="button-danger" type="submit"><?= $isReply ? '댓글 수정 열기' : '스레드 수정 열기' ?></button>
                 </form>
             <?php else: ?>
                 <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
                     <input type="hidden" name="manage_action" value="edit">
                     <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                    <label class="readonly-field"><span>이름</span><input type="text" value="<?= e((string) ($post['name'] ?? '')) ?>" readonly disabled></label>
+                    <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e((string) ($post['name'] ?? '')) ?>"></label>
                     <?php if (!$isReply): ?>
                         <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
                     <?php endif; ?>

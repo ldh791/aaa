@@ -191,44 +191,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateVisibility();
   });
-
-  const rememberNameKey = 'momoBoard.rememberedName';
-  const rememberPasswordKey = 'momoBoard.rememberedPostPassword';
-
-  const applyRememberedFields = () => {
-    const rememberedName = window.localStorage.getItem(rememberNameKey) || '';
-    const rememberedPassword = window.localStorage.getItem(rememberPasswordKey) || '';
-
-    document.querySelectorAll('input[data-remember-name]').forEach((input) => {
-      if (!(input instanceof HTMLInputElement)) return;
-      if (input.value.trim() === '' && rememberedName !== '') {
-        input.value = rememberedName;
-      }
-      input.addEventListener('input', () => {
-        window.localStorage.setItem(rememberNameKey, input.value);
-      });
-      input.form?.addEventListener('submit', () => {
-        window.localStorage.setItem(rememberNameKey, input.value);
-      });
-    });
-
-    document.querySelectorAll('input[data-remember-password]').forEach((input) => {
-      if (!(input instanceof HTMLInputElement)) return;
-      const form = input.form;
-      const isDeleteForm = !!form?.querySelector('input[name="manage_action"][value="delete"]');
-      if (isDeleteForm) return;
-      if (input.value === '' && rememberedPassword !== '') {
-        input.value = rememberedPassword;
-      }
-      input.addEventListener('input', () => {
-        window.localStorage.setItem(rememberPasswordKey, input.value);
-      });
-      form?.addEventListener('submit', () => {
-        window.localStorage.setItem(rememberPasswordKey, input.value);
-      });
-    });
-  };
-
-  applyRememberedFields();
-
 });
