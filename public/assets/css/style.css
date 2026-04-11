@@ -94,22 +94,11 @@ body.menu-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
 .sidebar-form-block { margin: 0; }
 .sidebar-action-button { width: 100%; justify-content: center; }
 .sidebar-login-button {
-  background: linear-gradient(180deg, rgba(255, 233, 242, .98), rgba(255, 205, 224, .98));
-  border-color: rgba(198, 132, 164, .72);
-  color: #7f4d67;
-  font-weight: 900;
-  box-shadow: 0 10px 22px rgba(214, 148, 180, .24);
-}
-.sidebar-login-button:hover {
-  background: linear-gradient(180deg, rgba(255, 238, 246, .99), rgba(255, 214, 230, .99));
-  border-color: rgba(191, 120, 154, .82);
-  color: #73475f;
-}
-body .site-sidebar .site-sidebar-auth-top .sidebar-login-button {
-  background: linear-gradient(180deg, rgba(255, 233, 242, .98), rgba(255, 205, 224, .98)) !important;
-  border-color: rgba(198, 132, 164, .72) !important;
-  color: #7f4d67 !important;
-  box-shadow: 0 10px 22px rgba(214, 148, 180, .24);
+  background: linear-gradient(180deg, rgba(255, 244, 248, .98), rgba(255, 230, 239, .98));
+  border-color: rgba(214, 180, 194, .92);
+  color: #8a5b73;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(214, 184, 196, .14);
 }
 .sidebar-register-link {
   display: inline-flex; align-items: center; justify-content: center;
@@ -389,15 +378,6 @@ textarea { resize: vertical; min-height: 132px; }
 .compact-form label span,
 .stack-form label span {
   font-weight: 600;
-}
-.mini-manage-form label span,
-.readonly-field span {
-  font-weight: 800;
-}
-.readonly-field input[readonly] {
-  background: rgba(250,245,248,.92);
-  color: #6f5b6b;
-  cursor: default;
 }
 .reply-context {
   display: flex;

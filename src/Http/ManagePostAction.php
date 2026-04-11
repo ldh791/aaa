@@ -68,7 +68,7 @@ final class ManagePostAction
             redirect($returnTo);
         }
 
-        $name = text_limit((string) ($target['name'] ?? '익명'), 30);
+        $name = text_limit(posted_value('name') ?: '익명', 30);
         $subject = text_limit(posted_value('subject'), 80);
         $comment = text_limit(posted_value('comment'), 5000);
         $errors = [];
