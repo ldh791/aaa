@@ -94,21 +94,14 @@ body.menu-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
 .sidebar-form-block { margin: 0; }
 .sidebar-action-button { width: 100%; justify-content: center; }
 .site-sidebar .sidebar-login-button {
-  background: linear-gradient(180deg, #ffe6f1 0%, #ffc9dc 100%) !important;
-  border: 1px solid rgba(189, 95, 139, .72) !important;
-  color: #7f3f5d !important;
-  font-weight: 900;
-  box-shadow: 0 12px 24px rgba(214, 150, 178, .28);
+  background: linear-gradient(180deg, #fff1f6 0%, #ffdbe8 100%);
+  border: 1px solid rgba(203, 131, 164, .58);
+  color: #8a4f69;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(214, 150, 178, .20);
 }
 .site-sidebar .sidebar-login-button:hover {
-  background: linear-gradient(180deg, #ffddeb 0%, #ffbfd6 100%) !important;
-  border-color: rgba(177, 83, 128, .82) !important;
-}
-.site-sidebar .sidebar-login-button::before {
-  content: '●';
-  font-size: .68rem;
-  margin-right: 8px;
-  color: #c8568d;
+  background: linear-gradient(180deg, #ffe8f1 0%, #ffd1e2 100%);
 }
 .sidebar-register-link {
   display: inline-flex; align-items: center; justify-content: center;
