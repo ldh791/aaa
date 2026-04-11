@@ -93,12 +93,22 @@ body.menu-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
 .site-sidebar-user { color: var(--muted); }
 .sidebar-form-block { margin: 0; }
 .sidebar-action-button { width: 100%; justify-content: center; }
-.sidebar-login-button {
-  background: linear-gradient(180deg, rgba(255, 244, 248, .98), rgba(255, 230, 239, .98));
-  border-color: rgba(214, 180, 194, .92);
-  color: #8a5b73;
-  font-weight: 800;
-  box-shadow: 0 8px 18px rgba(214, 184, 196, .14);
+.site-sidebar .sidebar-login-button {
+  background: linear-gradient(180deg, #ffe6f1 0%, #ffc9dc 100%) !important;
+  border: 1px solid rgba(189, 95, 139, .72) !important;
+  color: #7f3f5d !important;
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(214, 150, 178, .28);
+}
+.site-sidebar .sidebar-login-button:hover {
+  background: linear-gradient(180deg, #ffddeb 0%, #ffbfd6 100%) !important;
+  border-color: rgba(177, 83, 128, .82) !important;
+}
+.site-sidebar .sidebar-login-button::before {
+  content: '●';
+  font-size: .68rem;
+  margin-right: 8px;
+  color: #c8568d;
 }
 .sidebar-register-link {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1781,4 +1791,16 @@ body.report-modal-open {
   .admin-toolbar-link {
     flex: 0 0 auto;
   }
+}
+
+.readonly-field input[readonly],
+.readonly-field input:disabled {
+  background: rgba(250, 245, 248, .96);
+  color: var(--text);
+  font-weight: 600;
+  opacity: 1;
+  cursor: default;
+}
+.readonly-field span {
+  font-weight: 700;
 }
