@@ -494,13 +494,13 @@ function render_inline_reply_form(string $boardKey, string $threadId, string $pa
             <strong><?= e($label) ?></strong>
             <button type="button" class="reply-context-clear" data-toggle-target="<?= e($formId) ?>" data-toggle-group="reply-forms">닫기</button>
         </div>
-        <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($threadId) ?>" method="post" enctype="multipart/form-data" class="stack-form compact-form" data-remember-post>
+        <form action="/post.php?board=<?= e($boardKey) ?>&thread=<?= e($threadId) ?>" method="post" enctype="multipart/form-data" class="stack-form compact-form">
             <input type="hidden" name="parent_reply_id" value="<?= e($parentReplyId) ?>">
             <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-            <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name></label>
+            <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
             <label><span>내용</span><textarea name="comment" rows="5" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
             <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
-            <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required data-remember-password oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')"></label>
+            <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')"></label>
             <button class="button-primary" type="submit">등록</button>
         </form>
     </section>
@@ -522,15 +522,15 @@ function render_mobile_reply_dock(string $boardKey): void
                 </div>
                 <button type="button" class="mobile-reply-close-button" data-mobile-reply-close aria-label="닫기">닫기</button>
             </div>
-            <form action="/post.php" method="post" enctype="multipart/form-data" class="stack-form compact-form mobile-reply-form" data-mobile-reply-form data-remember-post>
+            <form action="/post.php" method="post" enctype="multipart/form-data" class="stack-form compact-form mobile-reply-form" data-mobile-reply-form>
                 <input type="hidden" name="board" value="<?= e($boardKey) ?>" data-mobile-reply-board>
                 <input type="hidden" name="thread_id" value="" data-mobile-reply-thread>
                 <input type="hidden" name="parent_reply_id" value="" data-mobile-reply-parent>
                 <input type="hidden" name="return_to" value="" data-mobile-reply-return>
-                <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name></label>
+                <label><span>이름</span><input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>"></label>
                 <label><span>내용</span><textarea name="comment" rows="4" maxlength="5000" placeholder="댓글 내용을 입력하세요"></textarea></label>
                 <label><span>이미지</span><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp"></label>
-                <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required data-remember-password></label>
+                <label><span>게시물 비밀번호</span><input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required></label>
                 <button class="button-primary" type="submit">등록</button>
             </form>
         </div>
@@ -605,20 +605,17 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
             <h3><?= $isReply ? '댓글 수정' : '스레드 수정' ?></h3>
             <?php if (!$isUnlocked): ?>
                 <p class="mini-manage-note">먼저 게시물 비밀번호를 확인한 뒤 수정 단계로 넘어갑니다.</p>
-                <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form" data-remember-post>
+                <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
                     <input type="hidden" name="manage_action" value="unlock_edit">
                     <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                    <label><span>게시물 비밀번호</span><input type="password" name="post_password" required data-remember-password></label>
+                    <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
                     <button class="button-danger" type="submit"><?= $isReply ? '댓글 수정 열기' : '스레드 수정 열기' ?></button>
                 </form>
             <?php else: ?>
                 <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form">
                     <input type="hidden" name="manage_action" value="edit">
                     <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                    <div class="readonly-meta-field">
-                        <span>이름</span>
-                        <strong><?= e((string) ($post['name'] ?? '익명')) ?></strong><?= member_badge_html($post) ?>
-                    </div>
+                    <label><span>이름</span><input type="text" name="name" maxlength="30" value="<?= e((string) ($post['name'] ?? '')) ?>"></label>
                     <?php if (!$isReply): ?>
                         <label><span>제목</span><input type="text" name="subject" maxlength="80" value="<?= e((string) ($post['subject'] ?? '')) ?>"></label>
                     <?php endif; ?>
@@ -629,10 +626,10 @@ function render_post_actions(string $boardKey, string $threadId, array $post, bo
         </section>
         <section id="<?= e($prefix) ?>-delete" class="mini-manage-form danger-form is-collapsed" data-toggle-panel>
             <h3><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></h3>
-            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('<?= $isReply ? '댓글' : '스레드' ?>을 삭제할까요?');" autocomplete="off">
+            <form action="/manage_post.php?board=<?= e($boardKey) ?>&thread_id=<?= e($threadId) ?><?= $isReply ? '&reply_id=' . rawurlencode($postId) : '' ?>" method="post" class="stack-form compact-form" onsubmit="return confirm('<?= $isReply ? '댓글' : '스레드' ?>을 삭제할까요?');">
                 <input type="hidden" name="manage_action" value="delete">
                 <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
-                <label><span>게시물 비밀번호</span><input type="password" name="post_password" required autocomplete="new-password"></label>
+                <label><span>게시물 비밀번호</span><input type="password" name="post_password" required></label>
                 <button class="button-danger" type="submit"><?= $isReply ? '댓글 삭제' : '스레드 삭제' ?></button>
             </form>
         </section>
@@ -681,18 +678,6 @@ function flatten_descendant_replies(array $children): array
     };
     $walk($children);
     return $flat;
-}
-
-function bundle_groups_from_children(array $children): array
-{
-    $groups = [];
-    foreach ($children as $child) {
-        $groups[] = [
-            'parent' => $child,
-            'replies' => flatten_descendant_replies(is_array($child['children'] ?? null) ? $child['children'] : []),
-        ];
-    }
-    return $groups;
 }
 
 

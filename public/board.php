@@ -46,11 +46,11 @@ $previewBatchCount = board_preview_batch_count();
                 <h2>새 스레드 만들기</h2>
                 <p>제목, 내용, 이미지 중 하나는 필요하고, 수정/삭제용 비밀번호도 필요합니다.</p>
             </div>
-            <form action="/post.php?board=<?= e($boardKey) ?>" method="post" enctype="multipart/form-data" class="stack-form" data-remember-post>
+            <form action="/post.php?board=<?= e($boardKey) ?>" method="post" enctype="multipart/form-data" class="stack-form">
                 <input type="hidden" name="return_to" value="<?= e(board_url($boardKey)) ?>">
                 <label>
                     <span>이름</span>
-                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>" data-remember-name>
+                    <input type="text" name="name" maxlength="30" placeholder="익명" value="<?= e($auth['username'] ?? '') ?>">
                 </label>
                 <label>
                     <span>제목</span>
@@ -66,7 +66,7 @@ $previewBatchCount = board_preview_batch_count();
                 </label>
                 <label>
                     <span>게시물 비밀번호</span>
-                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required data-remember-password oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')">
+                    <input type="password" name="post_password" minlength="4" maxlength="100" placeholder="수정/삭제할 때 사용" required oninvalid="this.setCustomValidity('비밀번호를 입력해주세요.')" oninput="this.setCustomValidity('')">
                 </label>
                 <button class="button-primary" type="submit">스레드 등록</button>
             </form>
@@ -132,22 +132,22 @@ $previewBatchCount = board_preview_batch_count();
                         <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
                         <?php if (!empty($reply['children'])): ?>
                             <?php if ($depth >= 1): ?>
-                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; $bundleGroups = bundle_groups_from_children($reply['children']); ?>
+                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; $bundleGroups = group_replies_by_parent($bundleReplies); ?>
                                 <div class="reply-bundle">
                                     <div class="reply-bundle-head">
                                         <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>"><span class="reply-bundle-toggle-label">더보기 답글</span><strong><?= e((string) count($bundleReplies)) ?></strong></button>
                                     </div>
                                     <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
-                                        <?php foreach ($bundleGroups as $bundleGroup): ?>
+                                        <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
                                             <section class="reply-bundle-group glass-card">
-                                                <?php render_bundle_group_quote($bundleGroup['parent'], $displayNumbers); ?>
-                                                <?php if ($bundleGroup['replies'] !== []): ?>
-                                                    <div class="reply-bundle-group-list">
-                                                        <?php foreach ($bundleGroup['replies'] as $bundleReply): ?>
-                                                            <?php $renderFlatBoardBundleReply($bundleReply); ?>
-                                                        <?php endforeach; ?>
-                                                    </div>
+                                                <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
+                                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
                                                 <?php endif; ?>
+                                                <div class="reply-bundle-group-list">
+                                                    <?php foreach ($groupReplies as $bundleReply): ?>
+                                                        <?php $renderFlatBoardBundleReply($bundleReply); ?>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             </section>
                                         <?php endforeach; ?>
                                     </div>
