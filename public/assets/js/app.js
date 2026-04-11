@@ -191,4 +191,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateVisibility();
   });
+
+  const rememberKeyName = 'momoboard:lastName';
+  const rememberKeyPassword = 'momoboard:lastPostPassword';
+  const eligibleForms = document.querySelectorAll('[data-remember-post-form]');
+
+  eligibleForms.forEach((form) => {
+    const nameInput = form.querySelector('[data-remember-name]');
+    const passwordInput = form.querySelector('[data-remember-password]');
+
+    try {
+      const savedName = window.localStorage.getItem(rememberKeyName) || '';
+      const savedPassword = window.localStorage.getItem(rememberKeyPassword) || '';
+      if (nameInput instanceof HTMLInputElement && !nameInput.readOnly && savedName) {
+        nameInput.value = savedName;
+      }
+      if (passwordInput instanceof HTMLInputElement && savedPassword) {
+        passwordInput.value = savedPassword;
+      }
+    } catch (error) {}
+
+    form.addEventListener('submit', () => {
+      try {
+        if (nameInput instanceof HTMLInputElement && !nameInput.readOnly) {
+          window.localStorage.setItem(rememberKeyName, nameInput.value);
+        }
+        if (passwordInput instanceof HTMLInputElement) {
+          window.localStorage.setItem(rememberKeyPassword, passwordInput.value);
+        }
+      } catch (error) {}
+    });
+  });
+
 });
