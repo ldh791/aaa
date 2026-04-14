@@ -195,6 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const rememberNameKey = 'momoBoard.rememberedName';
   const rememberPasswordKey = 'momoBoard.rememberedPostPassword';
 
+  const bindRememberField = (input, storageKey) => {
+    if (!(input instanceof HTMLInputElement)) return;
+    if (input.dataset.rememberBound === 'true') return;
+    input.dataset.rememberBound = 'true';
+
+    const save = () => {
+      window.localStorage.setItem(storageKey, input.value);
+    };
+
+    input.addEventListener('input', save);
+    input.addEventListener('change', save);
+    input.form?.addEventListener('submit', save);
+  };
+
   const applyRememberedFields = () => {
     const rememberedName = window.localStorage.getItem(rememberNameKey) || '';
     const rememberedPassword = window.localStorage.getItem(rememberPasswordKey) || '';
@@ -204,12 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input.value.trim() === '' && rememberedName !== '') {
         input.value = rememberedName;
       }
-      input.addEventListener('input', () => {
-        window.localStorage.setItem(rememberNameKey, input.value);
-      });
-      input.form?.addEventListener('submit', () => {
-        window.localStorage.setItem(rememberNameKey, input.value);
-      });
+      bindRememberField(input, rememberNameKey);
     });
 
     document.querySelectorAll('input[data-remember-password]').forEach((input) => {
@@ -220,15 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input.value === '' && rememberedPassword !== '') {
         input.value = rememberedPassword;
       }
-      input.addEventListener('input', () => {
-        window.localStorage.setItem(rememberPasswordKey, input.value);
-      });
-      form?.addEventListener('submit', () => {
-        window.localStorage.setItem(rememberPasswordKey, input.value);
-      });
+      bindRememberField(input, rememberPasswordKey);
     });
   };
 
   applyRememberedFields();
+
+  document.querySelectorAll('[data-toggle-target]').forEach((button) => {
+    button.addEventListener('click', () => {
+      window.setTimeout(applyRememberedFields, 0);
+    });
+  });
 
 });
