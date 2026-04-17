@@ -25,7 +25,8 @@
                 "password_hash": "$2y$12$Jb4elYWIJwmB8SSM7VoQEeg6dHLLrHKuUCO7.g0nZ1Mgf/NcD9AhO",
                 "user_id": null,
                 "username": null,
-                "created_at": "2026-03-29T14:00:41+09:00"
+                "created_at": "2026-03-29T14:00:41+09:00",
+                "display_no": 2
             },
             {
                 "id": "20260329140053a1a06e",
@@ -38,9 +39,11 @@
                 "password_hash": "$2y$12$Rc1oY59GjXiHo2uArBb5/OK.v9qzUO/K.cNrxPb8gglDQ0ul.gSCq",
                 "user_id": null,
                 "username": null,
-                "created_at": "2026-03-29T14:00:53+09:00"
+                "created_at": "2026-03-29T14:00:53+09:00",
+                "display_no": 3
             }
         ],
-        "locked": false
+        "locked": false,
+        "display_no": 1
     }
 ]

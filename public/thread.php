@@ -16,43 +16,15 @@ if ($thread === null) {
 $flash = flash_get();
 $replyTree = build_reply_tree($thread['replies'] ?? []);
 $replyCount = count($thread['replies'] ?? []);
+$rootReplyCount = root_reply_count($thread);
 $displayNumbers = thread_display_number_map($thread);
 $initialReplyCount = thread_preview_initial_count();
 $replyBatchCount = thread_preview_batch_count();
-$replyIndex = 0;
+$rootReplyIndex = 0;
 
-$renderFlatBundleReply = static function (array $reply) use ($boardKey, $threadId, $displayNumbers): void {
-    ?>
-    <div class="reply-bundle-entry" id="post-<?= e((string) $reply['id']) ?>">
-        <div class="thread-meta">
-            <p class="thread-subject-line"><strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?></p>
-            <p class="thread-meta-line">
-                <span class="meta-left">
-                    <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span>
-                    <span><?= e(render_time($reply['created_at'])) ?></span>
-                </span>
-            </p>
-        </div>
-        <?php if (!empty($reply['parent_reply_id'])): ?>
-            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 연결된 답글</p>
-        <?php endif; ?>
-        <?php if (!empty($reply['image'])): ?>
-            <a class="detail-image-link" href="<?= e(public_upload_url($reply['image'])) ?>" target="_blank" rel="noreferrer">
-                <img class="thread-image reply-image" src="<?= e(public_upload_url($reply['image'])) ?>" alt="reply image">
-            </a>
-        <?php endif; ?>
-        <?php if (!empty($reply['comment'])): ?>
-            <div class="thread-body reply-body"><?= nl2br(e((string) $reply['comment'])) ?></div>
-        <?php endif; ?>
-        <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
-    </div>
-    <?php
-};
-
-$renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderReplyNode, $renderFlatBundleReply, &$replyIndex, $boardKey, $threadId, $displayNumbers, $initialReplyCount): void {
-    $currentIndex = $replyIndex++;
+$renderReplyNode = static function (array $reply, int $depth = 0, bool $collapsed = false) use (&$renderReplyNode, $boardKey, $threadId, $displayNumbers): void {
     $depthClass = 'reply-depth-' . min($depth, 1);
-    $collapsedClass = $currentIndex >= $initialReplyCount ? ' is-collapsed' : '';
+    $collapsedClass = $collapsed ? ' is-collapsed' : '';
     ?>
     <article class="reply-card glass-card <?= e($depthClass) ?><?= e($collapsedClass) ?>" id="post-<?= e((string) $reply['id']) ?>" data-preview-item>
         <div class="thread-meta">
@@ -82,33 +54,24 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
 
         <?php render_post_actions($boardKey, $threadId, $reply, true, 'thread'); ?>
 
-        <?php if (!empty($reply['children'])): ?>
-            <?php if ($depth >= 1): ?>
-                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'reply-bundle-' . (string) $reply['id']; $bundleGroups = group_replies_by_parent($bundleReplies); ?>
-                <div class="reply-bundle">
-                    <div class="reply-bundle-head">
-                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>"><span class="reply-bundle-toggle-label">더보기 답글</span><strong><?= e((string) count($bundleReplies)) ?></strong></button>
-                    </div>
-                    <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
-                        <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
-                            <section class="reply-bundle-group glass-card">
-                                <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
-                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
-                                <?php endif; ?>
-                                <div class="reply-bundle-group-list">
-                                    <?php foreach ($groupReplies as $bundleReply): ?>
-                                        <?php $renderFlatBundleReply($bundleReply); ?>
-                                    <?php endforeach; ?>
-                                </div>
-                            </section>
+        <?php $children = is_array($reply['children'] ?? null) ? $reply['children'] : []; ?>
+        <?php if ($children !== []): ?>
+            <?php $visibleChildren = array_slice($children, 0, 1); $hiddenChildren = array_slice($children, 1); ?>
+            <div class="nested-reply-list">
+                <?php foreach ($visibleChildren as $child): ?>
+                    <?php $renderReplyNode($child, $depth + 1, false); ?>
+                <?php endforeach; ?>
+            </div>
+            <?php if ($hiddenChildren !== []): ?>
+                <div class="reply-bundle reply-bundle-simple" data-preview-list>
+                    <button type="button" class="reply-bundle-toggle" data-preview-more data-preview-batch="10" data-preview-label="답글 더보기">답글 더보기 <?= e((string) count($hiddenChildren)) ?></button>
+                    <div class="reply-bundle-list reply-bundle-list-simple">
+                        <?php foreach ($hiddenChildren as $hiddenChild): ?>
+                            <div class="reply-bundle-item-wrap is-collapsed" data-preview-item>
+                                <?php $renderReplyNode($hiddenChild, $depth + 1, false); ?>
+                            </div>
                         <?php endforeach; ?>
                     </div>
-                </div>
-            <?php else: ?>
-                <div class="nested-reply-list">
-                    <?php foreach ($reply['children'] as $child): ?>
-                        <?php $renderReplyNode($child, $depth + 1); ?>
-                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -131,8 +94,8 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
     <header class="topbar glass-card topbar-thread">
         <a class="home-link" href="<?= e(board_url($boardKey)) ?>">← /<?= e($boardKey) ?>/ 돌아가기</a>
         <div class="board-topbar-copy">
-            <p class="eyebrow">Thread</p>
-            <h1><?= e($thread['subject'] ?: '무제') ?></h1>
+            <p class="eyebrow">Board</p>
+            <h1>/<?= e($boardKey) ?>/ <?= e($board['title']) ?></h1>
             <p><?= e($board['subtitle']) ?></p>
         </div>
         <div class="topbar-side-spacer" aria-hidden="true"></div>
@@ -180,10 +143,10 @@ $renderReplyNode = static function (array $reply, int $depth = 0) use (&$renderR
                         </div>
                     <?php else: ?>
                         <?php foreach ($replyTree as $reply): ?>
-                            <?php $renderReplyNode($reply, 0); ?>
+                            <?php $renderReplyNode($reply, 0, $rootReplyIndex++ >= $initialReplyCount); ?>
                         <?php endforeach; ?>
-                        <?php if ($replyCount > $initialReplyCount): ?>
-                            <button type="button" class="load-more-chip" data-preview-more data-preview-batch="<?= e((string) $replyBatchCount) ?>">댓글 더보기</button>
+                        <?php if ($rootReplyCount > $initialReplyCount): ?>
+                            <button type="button" class="load-more-chip" data-preview-more data-preview-batch="<?= e((string) $replyBatchCount) ?>" data-preview-label="댓글 더보기">댓글 더보기</button>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

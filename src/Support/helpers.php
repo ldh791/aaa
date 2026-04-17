@@ -64,6 +64,7 @@ function ensure_storage(array $config): void
         $config['storage_path'] . '/data/admin_logs.json' => [],
         $config['storage_path'] . '/data/trash.json' => [],
         $config['storage_path'] . '/data/rate_limits.json' => [],
+        $config['storage_path'] . '/data/counters.json' => ['post_display_no' => 0],
     ];
 
     foreach ($jsonFiles as $file => $defaultContent) {
@@ -71,6 +72,8 @@ function ensure_storage(array $config): void
             file_put_contents($file, json_encode($defaultContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
     }
+
+    ensure_global_display_numbers();
 
     $backupDir = $config['storage_path'] . '/backups';
     if (!is_dir($backupDir)) {
@@ -392,6 +395,99 @@ function clear_post_edit_unlock(string $boardKey, string $threadId, string $post
     unset($_SESSION['edit_unlocks'][edit_unlock_key($boardKey, $threadId, $postId)]);
 }
 
+
+function ensure_global_display_numbers(): void
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+
+    $boards = array_keys(app_config()['boards']);
+    $used = [];
+    $max = 0;
+    $changedBoards = [];
+    $missing = [];
+    $order = 0;
+
+    foreach ($boards as $boardKey) {
+        $path = board_file_path($boardKey);
+        $threads = json_decode((string) file_get_contents($path), true);
+        if (!is_array($threads)) {
+            $threads = [];
+        }
+        $changedBoards[$boardKey] = $threads;
+        foreach ($threads as $ti => $thread) {
+            $displayNo = (int) ($thread['display_no'] ?? 0);
+            if ($displayNo > 0 && !isset($used[$displayNo])) {
+                $used[$displayNo] = true;
+                $max = max($max, $displayNo);
+            } else {
+                $missing[] = ['board' => $boardKey, 'type' => 'thread', 'index' => $ti, 'created_at' => (string) ($thread['created_at'] ?? ''), 'order' => $order++];
+            }
+            foreach (($thread['replies'] ?? []) as $ri => $reply) {
+                $displayNo = (int) ($reply['display_no'] ?? 0);
+                if ($displayNo > 0 && !isset($used[$displayNo])) {
+                    $used[$displayNo] = true;
+                    $max = max($max, $displayNo);
+                } else {
+                    $missing[] = ['board' => $boardKey, 'type' => 'reply', 'thread_index' => $ti, 'index' => $ri, 'created_at' => (string) ($reply['created_at'] ?? ''), 'order' => $order++];
+                }
+            }
+        }
+    }
+
+    usort($missing, static function (array $a, array $b): int {
+        $timeCompare = strcmp((string) ($a['created_at'] ?? ''), (string) ($b['created_at'] ?? ''));
+        if ($timeCompare !== 0) {
+            return $timeCompare;
+        }
+        return ((int) ($a['order'] ?? 0)) <=> ((int) ($b['order'] ?? 0));
+    });
+
+    if ($missing !== []) {
+        foreach ($missing as $item) {
+            $max++;
+            if ($item['type'] === 'thread') {
+                $changedBoards[$item['board']][$item['index']]['display_no'] = $max;
+            } else {
+                $changedBoards[$item['board']][$item['thread_index']]['replies'][$item['index']]['display_no'] = $max;
+            }
+        }
+        foreach ($changedBoards as $boardKey => $threads) {
+            file_put_contents(board_file_path($boardKey), json_encode(array_values($threads), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+        }
+    }
+
+    $counters = read_data_file('counters', ['post_display_no' => 0]);
+    if ((int) ($counters['post_display_no'] ?? 0) < $max) {
+        $counters['post_display_no'] = $max;
+        write_data_file('counters', $counters);
+    }
+}
+
+function next_post_display_no(): int
+{
+    ensure_global_display_numbers();
+    $counters = read_data_file('counters', ['post_display_no' => 0]);
+    $next = (int) ($counters['post_display_no'] ?? 0) + 1;
+    $counters['post_display_no'] = $next;
+    write_data_file('counters', $counters);
+    return $next;
+}
+
+function root_reply_count(array $thread): int
+{
+    $count = 0;
+    foreach (($thread['replies'] ?? []) as $reply) {
+        if (empty($reply['parent_reply_id'])) {
+            $count++;
+        }
+    }
+    return $count;
+}
+
 function flatten_reply_tree_for_preview(array $replyTree): array
 {
     $flat = [];
@@ -413,12 +509,12 @@ function flatten_reply_tree_for_preview(array $replyTree): array
 
 function board_preview_initial_count(): int
 {
-    return 20;
+    return 5;
 }
 
 function board_preview_batch_count(): int
 {
-    return 20;
+    return 5;
 }
 
 function thread_preview_initial_count(): int
@@ -428,17 +524,16 @@ function thread_preview_initial_count(): int
 
 function thread_preview_batch_count(): int
 {
-    return 20;
+    return 10;
 }
 
 function thread_display_number_map(array $thread): array
 {
     $map = [];
-    $next = 1;
 
     $threadId = (string) ($thread['id'] ?? '');
     if ($threadId !== '') {
-        $map[$threadId] = $next++;
+        $map[$threadId] = (int) (($thread['display_no'] ?? 0) ?: 0);
     }
 
     foreach (($thread['replies'] ?? []) as $reply) {
@@ -446,7 +541,7 @@ function thread_display_number_map(array $thread): array
         if ($replyId === '' || isset($map[$replyId])) {
             continue;
         }
-        $map[$replyId] = $next++;
+        $map[$replyId] = (int) (($reply['display_no'] ?? 0) ?: 0);
     }
 
     return $map;
