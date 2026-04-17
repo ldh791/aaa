@@ -201,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
       button.classList.add('is-collapsed');
       return;
     }
-    const batch = Number(button.getAttribute('data-bundle-batch') || '10');
     const label = button.getAttribute('data-bundle-label') || '답글 더보기';
     const labelNode = button.querySelector('.reply-bundle-toggle-label');
     const countNode = button.querySelector('strong');
@@ -214,8 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     button.addEventListener('click', () => {
-      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
-      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
+      items.forEach((item) => item.classList.remove('is-collapsed'));
       updateBundle();
     });
 

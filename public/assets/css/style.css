@@ -1871,3 +1871,92 @@ body.report-modal-open {
     max-width: 100%;
   }
 }
+
+
+/* targeted fixes: flash width + capped deep nesting + reply bundle inline link */
+.thread-shell .flash,
+.page-shell .flash {
+  max-width: 960px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* keep nested replies from shrinking indefinitely after the first nested level */
+.reply-depth-1 > .nested-reply-list,
+.reply-depth-flat > .nested-reply-list {
+  margin-left: -14px;
+  margin-right: -14px;
+}
+.reply-depth-1 .nested-reply-list > .reply-card,
+.reply-depth-1 .nested-reply-list > .board-reply-card,
+.reply-depth-flat .nested-reply-list > .reply-card,
+.reply-depth-flat .nested-reply-list > .board-reply-card {
+  margin-left: 0 !important;
+  width: calc(100% + 14px);
+  max-width: none;
+}
+.reply-depth-1 .reply-depth-1,
+.reply-depth-flat .reply-depth-1,
+.reply-depth-flat .reply-depth-flat {
+  border-left: 1px solid rgba(206,182,196,.22) !important;
+  background: rgba(255,255,255,.92) !important;
+}
+@media (max-width: 960px) {
+  .reply-depth-1 > .nested-reply-list,
+  .reply-depth-flat > .nested-reply-list {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+  .reply-depth-1 .nested-reply-list > .reply-card,
+  .reply-depth-1 .nested-reply-list > .board-reply-card,
+  .reply-depth-flat .nested-reply-list > .reply-card,
+  .reply-depth-flat .nested-reply-list > .board-reply-card {
+    width: calc(100% + 12px);
+  }
+}
+
+/* reply bundle trigger should look like a clean inline link, not a button */
+.reply-bundle-head {
+  margin-bottom: 8px;
+}
+.reply-bundle-toggle {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #9b6b83 !important;
+  font-weight: 800;
+  cursor: pointer;
+}
+.reply-bundle-toggle:hover {
+  color: #87566f !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reply-bundle-toggle strong {
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+.reply-bundle-toggle::after {
+  content: '›';
+  font-size: 1rem;
+  line-height: 1;
+}
+.reply-bundle-toggle.is-collapsed {
+  display: none !important;
+}
