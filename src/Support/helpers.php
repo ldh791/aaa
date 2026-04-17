@@ -413,12 +413,12 @@ function flatten_reply_tree_for_preview(array $replyTree): array
 
 function board_preview_initial_count(): int
 {
-    return 20;
+    return 5;
 }
 
 function board_preview_batch_count(): int
 {
-    return 20;
+    return 5;
 }
 
 function thread_preview_initial_count(): int
@@ -428,25 +428,74 @@ function thread_preview_initial_count(): int
 
 function thread_preview_batch_count(): int
 {
-    return 20;
+    return 10;
+}
+
+function global_display_number_index(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $posts = [];
+    foreach (all_board_threads_raw() as $thread) {
+        $threadId = (string) ($thread['id'] ?? '');
+        if ($threadId !== '') {
+            $posts[] = [
+                'id' => $threadId,
+                'created_at' => (string) ($thread['created_at'] ?? ''),
+            ];
+        }
+        foreach (($thread['replies'] ?? []) as $reply) {
+            $replyId = (string) ($reply['id'] ?? '');
+            if ($replyId === '') {
+                continue;
+            }
+            $posts[] = [
+                'id' => $replyId,
+                'created_at' => (string) ($reply['created_at'] ?? ''),
+            ];
+        }
+    }
+
+    usort($posts, static function (array $a, array $b): int {
+        $timeCompare = strcmp((string) ($a['created_at'] ?? ''), (string) ($b['created_at'] ?? ''));
+        if ($timeCompare !== 0) {
+            return $timeCompare;
+        }
+        return strcmp((string) ($a['id'] ?? ''), (string) ($b['id'] ?? ''));
+    });
+
+    $cache = [];
+    $next = 1;
+    foreach ($posts as $post) {
+        $postId = (string) ($post['id'] ?? '');
+        if ($postId === '' || isset($cache[$postId])) {
+            continue;
+        }
+        $cache[$postId] = $next++;
+    }
+
+    return $cache;
 }
 
 function thread_display_number_map(array $thread): array
 {
+    $globalMap = global_display_number_index();
     $map = [];
-    $next = 1;
 
     $threadId = (string) ($thread['id'] ?? '');
     if ($threadId !== '') {
-        $map[$threadId] = $next++;
+        $map[$threadId] = $globalMap[$threadId] ?? $threadId;
     }
 
     foreach (($thread['replies'] ?? []) as $reply) {
         $replyId = (string) ($reply['id'] ?? '');
-        if ($replyId === '' || isset($map[$replyId])) {
+        if ($replyId === '') {
             continue;
         }
-        $map[$replyId] = $next++;
+        $map[$replyId] = $globalMap[$replyId] ?? $replyId;
     }
 
     return $map;
@@ -716,6 +765,27 @@ function render_bundle_group_quote(array $parentPost, array $displayNumbers): vo
     </div>
     <?php
 }
+function direct_reply_count(array $replyTree): int
+{
+    return count($replyTree);
+}
+
+function visible_inline_children(array $children): array
+{
+    if ($children === []) {
+        return [];
+    }
+    return [reset($children)];
+}
+
+function hidden_bundle_children(array $children): array
+{
+    if (count($children) <= 1) {
+        return [];
+    }
+    return array_slice(array_values($children), 1);
+}
+
 function all_board_threads_raw(): array
 {
     $all = [];

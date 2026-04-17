@@ -192,6 +192,36 @@ document.addEventListener('DOMContentLoaded', () => {
     updateVisibility();
   });
 
+
+  document.querySelectorAll('.reply-bundle').forEach((bundle) => {
+    const button = bundle.querySelector('[data-bundle-more]');
+    if (!(button instanceof HTMLButtonElement)) return;
+    const items = Array.from(bundle.querySelectorAll('[data-bundle-item]'));
+    if (items.length === 0) {
+      button.classList.add('is-collapsed');
+      return;
+    }
+    const batch = Number(button.getAttribute('data-bundle-batch') || '10');
+    const label = button.getAttribute('data-bundle-label') || '답글 더보기';
+    const labelNode = button.querySelector('.reply-bundle-toggle-label');
+    const countNode = button.querySelector('strong');
+
+    const updateBundle = () => {
+      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
+      button.classList.toggle('is-collapsed', hidden.length === 0);
+      if (labelNode) labelNode.textContent = label;
+      if (countNode) countNode.textContent = String(hidden.length);
+    };
+
+    button.addEventListener('click', () => {
+      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
+      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
+      updateBundle();
+    });
+
+    updateBundle();
+  });
+
   const rememberNameKey = 'momoBoard.rememberedName';
   const rememberPasswordKey = 'momoBoard.rememberedPostPassword';
 

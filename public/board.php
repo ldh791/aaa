@@ -84,36 +84,14 @@ $previewBatchCount = board_preview_batch_count();
                 <?php
                 $displayNumbers = thread_display_number_map($thread);
                 $replyTree = build_reply_tree($thread['replies'] ?? []);
-                $replyLookup = reply_lookup_map($thread);
-                $previewIndex = 0;
-                $renderFlatBoardBundleReply = static function (array $reply) use ($boardKey, $thread, $displayNumbers): void {
-                    ?>
-                    <div class="reply-bundle-entry board-reply-entry" id="post-<?= e((string) $reply['id']) ?>">
-                        <div class="thread-meta">
-                            <p class="thread-meta-line">
-                                <span class="meta-left">
-                                    <strong><?= e($reply['name']) ?></strong><?= member_badge_html($reply) ?>
-                                    <span>No.<?= e((string) ($displayNumbers[$reply['id']] ?? $reply['id'])) ?></span>
-                                    <span><?= e(render_time($reply['created_at'])) ?></span>
-                                </span>
-                            </p>
-                        </div>
-                        <?php if (!empty($reply['parent_reply_id'])): ?>
-                            <p class="reply-parent-link">↳ 댓글 No.<?= e((string) ($displayNumbers[$reply['parent_reply_id']] ?? $reply['parent_reply_id'])) ?>에 연결된 답글</p>
-                        <?php endif; ?>
-                        <?php if (!empty($reply['comment'])): ?>
-                            <div class="thread-body reply-body"><?= nl2br(e(text_preview((string) $reply['comment'], 220))) ?></div>
-                        <?php endif; ?>
-                        <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
-                    </div>
-                    <?php
-                };
-                $replyRender = static function (array $reply, int $depth = 0) use (&$replyRender, $renderFlatBoardBundleReply, &$previewIndex, $boardKey, $thread, $displayNumbers, $initialPreviewCount): void {
-                    $currentIndex = $previewIndex++;
-                    $isCollapsed = $currentIndex >= $initialPreviewCount;
+                $topLevelCommentCount = direct_reply_count($replyTree);
+                $renderReply = static function (array $reply, int $depth = 0, bool $isCollapsed = false) use (&$renderReply, $boardKey, $thread, $displayNumbers): void {
                     $depthClass = 'reply-depth-' . min($depth, 1);
+                    $children = $reply['children'] ?? [];
+                    $inlineChildren = visible_inline_children($children);
+                    $bundledChildren = hidden_bundle_children($children);
                     ?>
-                    <article class="reply-card glass-card board-reply-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>" data-preview-item>
+                    <article class="reply-card glass-card board-reply-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>"<?= $depth === 0 ? ' data-preview-item' : '' ?>>
                         <div class="thread-meta">
                             <p class="thread-meta-line">
                                 <span class="meta-left">
@@ -130,35 +108,31 @@ $previewBatchCount = board_preview_batch_count();
                             <div class="thread-body reply-body"><?= nl2br(e(text_preview((string) $reply['comment'], 220))) ?></div>
                         <?php endif; ?>
                         <?php render_post_actions($boardKey, (string) $thread['id'], $reply, true, 'board'); ?>
-                        <?php if (!empty($reply['children'])): ?>
-                            <?php if ($depth >= 1): ?>
-                                <?php $bundleReplies = flatten_descendant_replies($reply['children']); $bundleId = 'board-reply-bundle-' . (string) $reply['id']; $bundleGroups = group_replies_by_parent($bundleReplies); ?>
-                                <div class="reply-bundle">
-                                    <div class="reply-bundle-head">
-                                        <button type="button" class="reply-bundle-toggle" data-toggle-target="<?= e($bundleId) ?>"><span class="reply-bundle-toggle-label">더보기 답글</span><strong><?= e((string) count($bundleReplies)) ?></strong></button>
-                                    </div>
-                                    <div id="<?= e($bundleId) ?>" class="reply-bundle-list is-collapsed" data-toggle-panel>
-                                        <?php foreach ($bundleGroups as $parentReplyId => $groupReplies): ?>
-                                            <section class="reply-bundle-group glass-card">
-                                                <?php if ($parentReplyId !== '' && isset($replyLookup[$parentReplyId])): ?>
-                                                    <?php render_bundle_group_quote($replyLookup[$parentReplyId], $displayNumbers); ?>
-                                                <?php endif; ?>
-                                                <div class="reply-bundle-group-list">
-                                                    <?php foreach ($groupReplies as $bundleReply): ?>
-                                                        <?php $renderFlatBoardBundleReply($bundleReply); ?>
-                                                    <?php endforeach; ?>
+
+                        <?php if ($inlineChildren !== [] || $bundledChildren !== []): ?>
+                            <div class="nested-reply-list">
+                                <?php foreach ($inlineChildren as $child): ?>
+                                    <?php $renderReply($child, $depth + 1, false); ?>
+                                <?php endforeach; ?>
+
+                                <?php if ($bundledChildren !== []): ?>
+                                    <div class="reply-bundle reply-bundle-inline">
+                                        <div class="reply-bundle-head">
+                                            <button type="button" class="reply-bundle-toggle" data-bundle-more data-bundle-batch="10" data-bundle-label="답글 더보기">
+                                                <span class="reply-bundle-toggle-label">답글 더보기</span>
+                                                <strong><?= e((string) count($bundledChildren)) ?></strong>
+                                            </button>
+                                        </div>
+                                        <div class="reply-bundle-list" data-bundle-list>
+                                            <?php foreach ($bundledChildren as $bundleReply): ?>
+                                                <div class="reply-bundle-item is-collapsed" data-bundle-item>
+                                                    <?php $renderReply($bundleReply, $depth + 1, false); ?>
                                                 </div>
-                                            </section>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
-                                </div>
-                            <?php else: ?>
-                                <div class="nested-reply-list">
-                                    <?php foreach ($reply['children'] as $child): ?>
-                                        <?php $replyRender($child, $depth + 1); ?>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
                     </article>
                     <?php
@@ -200,10 +174,10 @@ $previewBatchCount = board_preview_batch_count();
 
                     <?php if ($replyTree !== []): ?>
                         <div class="reply-preview-list board-reply-preview-list" data-preview-list>
-                            <?php foreach ($replyTree as $reply): ?>
-                                <?php $replyRender($reply, 0); ?>
+                            <?php foreach ($replyTree as $replyIndex => $reply): ?>
+                                <?php $renderReply($reply, 0, $replyIndex >= $initialPreviewCount); ?>
                             <?php endforeach; ?>
-                            <?php if ($thread['reply_count'] > $initialPreviewCount): ?>
+                            <?php if ($topLevelCommentCount > $initialPreviewCount): ?>
                                 <button type="button" class="load-more-chip" data-preview-more data-preview-batch="<?= e((string) $previewBatchCount) ?>">댓글 더보기</button>
                             <?php endif; ?>
                         </div>

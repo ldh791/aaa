@@ -204,12 +204,12 @@ final class JsonPostRepository implements PostRepositoryInterface
 
         foreach ($boards as $boardKey) {
             foreach ($this->readBoard($boardKey) as $thread) {
-                $threadMatch = $this->matchesPost($thread, $q, $field, $username, $postId, true);
+                $threadMatch = $this->matchesPost($boardKey, $thread, $thread, $q, $field, $username, $postId, true);
                 if ($threadMatch['matched']) {
                     $results[] = $this->buildSearchResult($boardKey, $thread, null, $threadMatch['score']);
                 }
                 foreach (($thread['replies'] ?? []) as $reply) {
-                    $replyMatch = $this->matchesPost($reply, $q, $field, $username, $postId, false);
+                    $replyMatch = $this->matchesPost($boardKey, $thread, $reply, $q, $field, $username, $postId, false);
                     if ($replyMatch['matched']) {
                         $results[] = $this->buildSearchResult($boardKey, $thread, $reply, $replyMatch['score']);
                     }
@@ -228,7 +228,7 @@ final class JsonPostRepository implements PostRepositoryInterface
         return $results;
     }
 
-    private function matchesPost(array $post, string $q, string $field, string $username, string $postId, bool $isThread): array
+    private function matchesPost(string $boardKey, array $thread, array $post, string $q, string $field, string $username, string $postId, bool $isThread): array
     {
         $score = 0;
         if ($username !== '') {
@@ -240,7 +240,9 @@ final class JsonPostRepository implements PostRepositoryInterface
         }
 
         if ($postId !== '') {
-            if (strpos((string) ($post['id'] ?? ''), $postId) === false) {
+            $displayNo = (string) \post_display_number($thread, (string) ($post['id'] ?? ''));
+            $internalId = (string) ($post['id'] ?? '');
+            if (strpos($internalId, $postId) === false && $displayNo !== $postId) {
                 return ['matched' => false, 'score' => 0];
             }
             $score += 5;

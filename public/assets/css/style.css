@@ -1804,3 +1804,70 @@ body.report-modal-open {
 .readonly-field span {
   font-weight: 700;
 }
+
+/* request-specific refinements */
+.thread-shell .topbar-thread {
+  width: 100%;
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.thread-shell .thread-main-column {
+  width: 100%;
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.reply-bundle,
+.reply-bundle-inline {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+.reply-bundle-head {
+  margin-bottom: 10px;
+}
+.reply-bundle-list {
+  display: grid;
+  gap: 12px;
+  background: transparent !important;
+}
+.reply-bundle-item {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+.reply-bundle-item.is-collapsed {
+  display: none !important;
+}
+.reply-bundle-item > .reply-card,
+.reply-bundle-item > .board-reply-card {
+  margin-top: 0;
+}
+.reply-bundle-group,
+.reply-bundle-group-head,
+.reply-bundle-group-list,
+.reply-bundle-entry,
+.reply-bundle-quote,
+.reply-bundle-target {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.reply-bundle-group {
+  padding: 0 !important;
+  border: 0 !important;
+}
+.reply-bundle-group + .reply-bundle-group {
+  padding-top: 0 !important;
+  border-top: 0 !important;
+}
+@media (max-width: 960px) {
+  .thread-shell .topbar-thread,
+  .thread-shell .thread-main-column {
+    max-width: 100%;
+  }
+}
