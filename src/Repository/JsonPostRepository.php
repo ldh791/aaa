@@ -51,7 +51,6 @@ final class JsonPostRepository implements PostRepositoryInterface
             'username' => $payload['username'] ?? null,
             'created_at' => $payload['created_at'],
             'bumped_at' => $payload['created_at'],
-            'display_no' => \next_post_display_no(),
             'reply_count' => 0,
             'sticky' => false,
             'locked' => false,
@@ -98,7 +97,6 @@ final class JsonPostRepository implements PostRepositoryInterface
                 'user_id' => $payload['user_id'] ?? null,
                 'username' => $payload['username'] ?? null,
                 'created_at' => $payload['created_at'],
-                'display_no' => \next_post_display_no(),
             ];
             $thread['reply_count'] = count($thread['replies']);
             $thread['bumped_at'] = $payload['created_at'];
@@ -206,13 +204,12 @@ final class JsonPostRepository implements PostRepositoryInterface
 
         foreach ($boards as $boardKey) {
             foreach ($this->readBoard($boardKey) as $thread) {
-                $displayMap = \thread_display_number_map($thread);
-                $threadMatch = $this->matchesPost($thread, $q, $field, $username, $postId, true, (string) ($displayMap[$thread['id']] ?? ''));
+                $threadMatch = $this->matchesPost($thread, $q, $field, $username, $postId, true);
                 if ($threadMatch['matched']) {
                     $results[] = $this->buildSearchResult($boardKey, $thread, null, $threadMatch['score']);
                 }
                 foreach (($thread['replies'] ?? []) as $reply) {
-                    $replyMatch = $this->matchesPost($reply, $q, $field, $username, $postId, false, (string) ($displayMap[$reply['id']] ?? ''));
+                    $replyMatch = $this->matchesPost($reply, $q, $field, $username, $postId, false);
                     if ($replyMatch['matched']) {
                         $results[] = $this->buildSearchResult($boardKey, $thread, $reply, $replyMatch['score']);
                     }
@@ -231,7 +228,7 @@ final class JsonPostRepository implements PostRepositoryInterface
         return $results;
     }
 
-    private function matchesPost(array $post, string $q, string $field, string $username, string $postId, bool $isThread, string $displayNo = ''): array
+    private function matchesPost(array $post, string $q, string $field, string $username, string $postId, bool $isThread): array
     {
         $score = 0;
         if ($username !== '') {
@@ -243,8 +240,7 @@ final class JsonPostRepository implements PostRepositoryInterface
         }
 
         if ($postId !== '') {
-            $rawId = (string) ($post['id'] ?? '');
-            if (strpos($rawId, $postId) === false && strpos($displayNo, $postId) === false) {
+            if (strpos((string) ($post['id'] ?? ''), $postId) === false) {
                 return ['matched' => false, 'score' => 0];
             }
             $score += 5;

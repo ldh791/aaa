@@ -174,20 +174,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = list.querySelector('[data-preview-more]');
     if (!(button instanceof HTMLButtonElement)) return;
     const batch = Number(button.getAttribute('data-preview-batch') || '20');
-    const label = button.getAttribute('data-preview-label') || '댓글 더보기';
-
-    const previewItems = () => Array.from(list.querySelectorAll('[data-preview-item]')).filter((item) => item.closest('[data-preview-list]') === list);
 
     const updateVisibility = () => {
-      const hidden = previewItems().filter((item) => item.classList.contains('is-collapsed'));
+      const hidden = Array.from(list.querySelectorAll('[data-preview-item].is-collapsed'));
       button.classList.toggle('is-collapsed', hidden.length === 0);
       if (hidden.length > 0) {
-        button.textContent = `${label} ${hidden.length}`;
+        button.textContent = `댓글 더보기 (${hidden.length})`;
       }
     };
 
     button.addEventListener('click', () => {
-      const hidden = previewItems().filter((item) => item.classList.contains('is-collapsed'));
+      const hidden = Array.from(list.querySelectorAll('[data-preview-item].is-collapsed'));
       hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
       updateVisibility();
     });
