@@ -85,13 +85,19 @@ $previewBatchCount = board_preview_batch_count();
                 $displayNumbers = thread_display_number_map($thread);
                 $replyTree = build_reply_tree($thread['replies'] ?? []);
                 $topLevelCommentCount = direct_reply_count($replyTree);
-                $renderReply = static function (array $reply, int $depth = 0, bool $isCollapsed = false) use (&$renderReply, $boardKey, $thread, $displayNumbers): void {
-                    $depthClass = 'reply-depth-' . min($depth, 1);
+                $renderReply = static function (array $reply, int $depth = 0, bool $isCollapsed = false, bool $compactNestedPreview = false) use (&$renderReply, $boardKey, $thread, $displayNumbers): void {
+                    $visualDepth = min($depth, 2);
+                    $depthClass = 'reply-depth-' . $visualDepth;
                     $children = $reply['children'] ?? [];
-                    $inlineChildren = visible_inline_children($children);
-                    $bundledChildren = hidden_bundle_children($children);
+                    if ($compactNestedPreview && $children !== []) {
+                        $inlineChildren = [];
+                        $bundledChildren = array_values($children);
+                    } else {
+                        $inlineChildren = visible_inline_children($children);
+                        $bundledChildren = hidden_bundle_children($children);
+                    }
                     ?>
-                    <article class="reply-card glass-card board-reply-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>"<?= $depth === 0 ? ' data-preview-item' : '' ?>>
+                    <article class="reply-card glass-card board-reply-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>" data-depth="<?= e((string) $visualDepth) ?>"<?= $depth === 0 ? ' data-preview-item' : '' ?>>
                         <div class="thread-meta">
                             <p class="thread-meta-line">
                                 <span class="meta-left">
@@ -112,7 +118,7 @@ $previewBatchCount = board_preview_batch_count();
                         <?php if ($inlineChildren !== [] || $bundledChildren !== []): ?>
                             <div class="nested-reply-list">
                                 <?php foreach ($inlineChildren as $child): ?>
-                                    <?php $renderReply($child, $depth + 1, false); ?>
+                                    <?php $renderReply($child, $depth + 1, false, $bundledChildren !== []); ?>
                                 <?php endforeach; ?>
 
                                 <?php if ($bundledChildren !== []): ?>
@@ -126,7 +132,7 @@ $previewBatchCount = board_preview_batch_count();
                                         <div class="reply-bundle-list" data-bundle-list>
                                             <?php foreach ($bundledChildren as $bundleReply): ?>
                                                 <div class="reply-bundle-item is-collapsed" data-bundle-item>
-                                                    <?php $renderReply($bundleReply, $depth + 1, false); ?>
+                                                    <?php $renderReply($bundleReply, $depth + 1, false, false); ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>

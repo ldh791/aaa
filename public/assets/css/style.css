@@ -1960,3 +1960,92 @@ body.report-modal-open {
 .reply-bundle-toggle.is-collapsed {
   display: none !important;
 }
+
+/* final targeted fixes: stable flash width + non-shrinking deep replies + natural reply bundle spacing */
+.thread-shell .flash,
+.page-shell .flash {
+  max-width: 920px !important;
+  width: min(920px, 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.reply-card.reply-depth-1,
+.reply-card.reply-depth-2,
+.board-reply-card.reply-depth-1,
+.board-reply-card.reply-depth-2 {
+  margin-left: 0 !important;
+}
+
+.reply-card[data-depth="0"] > .nested-reply-list,
+.board-reply-card[data-depth="0"] > .nested-reply-list {
+  margin-left: 20px;
+}
+
+.reply-card[data-depth="1"] > .nested-reply-list,
+.board-reply-card[data-depth="1"] > .nested-reply-list {
+  margin-left: 20px;
+}
+
+.reply-card[data-depth="2"] > .nested-reply-list,
+.board-reply-card[data-depth="2"] > .nested-reply-list {
+  margin-left: 0;
+}
+
+.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.reply-bundle,
+.reply-bundle-inline {
+  margin-top: 14px;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.reply-bundle-head {
+  margin: 0 0 14px !important;
+}
+
+.reply-bundle-list {
+  display: grid;
+  gap: 14px;
+}
+
+.reply-bundle-item {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.reply-bundle-item.is-collapsed {
+  display: none !important;
+}
+
+.reply-bundle-item > .reply-card,
+.reply-bundle-item > .board-reply-card {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 960px) {
+  .thread-shell .flash,
+  .page-shell .flash {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .reply-card[data-depth="0"] > .nested-reply-list,
+  .board-reply-card[data-depth="0"] > .nested-reply-list,
+  .reply-card[data-depth="1"] > .nested-reply-list,
+  .board-reply-card[data-depth="1"] > .nested-reply-list {
+    margin-left: 14px;
+  }
+}
