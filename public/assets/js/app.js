@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const head = bundle.querySelector('.reply-bundle-head');
     if (!(button instanceof HTMLButtonElement)) return;
     const items = Array.from(bundle.querySelectorAll('[data-bundle-item]'));
+    const batch = Math.max(1, parseInt(button.getAttribute('data-bundle-batch') || '10', 10));
     if (items.length === 0) {
       button.classList.add('is-collapsed');
       if (head) head.classList.add('is-collapsed');
@@ -218,7 +219,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     button.addEventListener('click', () => {
-      items.forEach((item) => item.classList.remove('is-collapsed'));
+      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
+      if (hidden.length === 0) {
+        updateBundle();
+        return;
+      }
+      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
       updateBundle();
     });
 
