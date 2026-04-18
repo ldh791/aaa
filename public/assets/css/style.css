@@ -2049,3 +2049,146 @@ body.report-modal-open {
     margin-left: 14px;
   }
 }
+
+/* targeted mobile/readability fixes for deep replies and inline bundles */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.thread-shell,
+.page-shell,
+.thread-main-column,
+.reply-section,
+.reply-list-embedded,
+.nested-reply-list,
+.reply-bundle-list,
+.reply-bundle-item,
+.reply-bundle-item > .reply-card,
+.reply-bundle-item > .board-reply-card {
+  min-width: 0;
+}
+
+.reply-card,
+.board-reply-card,
+.thread-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.reply-card .thread-meta-line,
+.board-reply-card .thread-meta-line,
+.reply-card .meta-left,
+.board-reply-card .meta-left,
+.reply-card .thread-body,
+.board-reply-card .thread-body,
+.reply-card .reply-parent-link,
+.board-reply-card .reply-parent-link,
+.reply-card strong,
+.board-reply-card strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reply-bundle-inline,
+.reply-bundle {
+  margin-top: 0 !important;
+}
+
+.nested-reply-list > .reply-bundle,
+.nested-reply-list > .reply-bundle-inline {
+  margin-top: 0 !important;
+}
+
+.reply-bundle-head {
+  margin: 0 !important;
+}
+
+.reply-bundle-head.is-collapsed {
+  display: none !important;
+}
+
+.reply-bundle-list {
+  gap: 12px !important;
+}
+
+.reply-bundle-item > .reply-card,
+.reply-bundle-item > .board-reply-card {
+  margin-top: 0 !important;
+}
+
+.reply-card[data-depth="2"] > .nested-reply-list,
+.board-reply-card[data-depth="2"] > .nested-reply-list,
+.reply-depth-2 > .nested-reply-list,
+.board-reply-card.reply-depth-2 > .nested-reply-list {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+.reply-depth-2 > .nested-reply-list > .reply-card,
+.reply-depth-2 > .nested-reply-list > .board-reply-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+}
+
+@media (max-width: 960px) {
+  .thread-shell {
+    width: calc(100% - 12px) !important;
+  }
+
+  .thread-shell .topbar-thread,
+  .thread-shell .thread-main-column,
+  .thread-detail-hero,
+  .reply-card,
+  .board-reply-card,
+  .reply-section {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .thread-detail-hero,
+  .reply-card,
+  .board-reply-card {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .reply-card,
+  .board-reply-card,
+  .reply-card .thread-body,
+  .board-reply-card .thread-body,
+  .reply-card .thread-meta-line,
+  .board-reply-card .thread-meta-line,
+  .reply-card .reply-parent-link,
+  .board-reply-card .reply-parent-link,
+  .post-inline-action {
+    font-size: 0.92rem !important;
+  }
+
+  .reply-card .meta-left,
+  .board-reply-card .meta-left {
+    gap: 6px !important;
+  }
+
+  .reply-card[data-depth="0"] > .nested-reply-list,
+  .board-reply-card[data-depth="0"] > .nested-reply-list,
+  .reply-card[data-depth="1"] > .nested-reply-list,
+  .board-reply-card[data-depth="1"] > .nested-reply-list {
+    margin-left: 12px !important;
+  }
+
+  .reply-card[data-depth="2"] > .nested-reply-list,
+  .board-reply-card[data-depth="2"] > .nested-reply-list,
+  .reply-depth-2 > .nested-reply-list {
+    margin-left: 0 !important;
+  }
+
+  .reply-bundle-list {
+    gap: 10px !important;
+  }
+}

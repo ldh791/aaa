@@ -195,10 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.reply-bundle').forEach((bundle) => {
     const button = bundle.querySelector('[data-bundle-more]');
+    const head = bundle.querySelector('.reply-bundle-head');
     if (!(button instanceof HTMLButtonElement)) return;
     const items = Array.from(bundle.querySelectorAll('[data-bundle-item]'));
     if (items.length === 0) {
       button.classList.add('is-collapsed');
+      if (head) head.classList.add('is-collapsed');
       return;
     }
     const label = button.getAttribute('data-bundle-label') || '답글 더보기';
@@ -207,7 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateBundle = () => {
       const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
-      button.classList.toggle('is-collapsed', hidden.length === 0);
+      const allVisible = hidden.length === 0;
+      button.classList.toggle('is-collapsed', allVisible);
+      if (head) head.classList.toggle('is-collapsed', allVisible);
+      bundle.classList.toggle('is-expanded', allVisible);
       if (labelNode) labelNode.textContent = label;
       if (countNode) countNode.textContent = String(hidden.length);
     };
