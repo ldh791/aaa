@@ -197,31 +197,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = bundle.querySelector('[data-bundle-more]');
     const head = bundle.querySelector('.reply-bundle-head');
     if (!(button instanceof HTMLButtonElement)) return;
-    const items = Array.from(bundle.querySelectorAll(':scope > [data-bundle-list] > [data-bundle-item]'));
-    const batch = Number(button.getAttribute('data-bundle-batch') || '10') || 10;
+    const items = Array.from(bundle.querySelectorAll('[data-bundle-item]'));
+    if (items.length === 0) {
+      button.classList.add('is-collapsed');
+      if (head) head.classList.add('is-collapsed');
+      return;
+    }
     const label = button.getAttribute('data-bundle-label') || '답글 더보기';
     const labelNode = button.querySelector('.reply-bundle-toggle-label');
     const countNode = button.querySelector('strong');
 
     const updateBundle = () => {
       const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
-      const hiddenCount = hidden.length;
-      const allVisible = hiddenCount === 0;
+      const allVisible = hidden.length === 0;
       button.classList.toggle('is-collapsed', allVisible);
       if (head) head.classList.toggle('is-collapsed', allVisible);
       bundle.classList.toggle('is-expanded', allVisible);
       if (labelNode) labelNode.textContent = label;
-      if (countNode) countNode.textContent = String(hiddenCount);
+      if (countNode) countNode.textContent = String(hidden.length);
     };
 
-    if (items.length === 0) {
-      updateBundle();
-      return;
-    }
-
     button.addEventListener('click', () => {
-      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
-      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
+      items.forEach((item) => item.classList.remove('is-collapsed'));
       updateBundle();
     });
 

@@ -2193,217 +2193,45 @@ html {
   }
 }
 
-/* targeted v6 fixes: desktop nested reply-bundle alignment + mobile depth cap */
+
+/* targeted fixes v6: nested reply bundle alignment on desktop + stop further shrinking on mobile */
 @media (min-width: 961px) {
-  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
-  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
-  .reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head {
-    padding-left: 10px;
+  .reply-card[data-depth="2"] > .nested-reply-list > .reply-bundle > .reply-bundle-head,
+  .board-reply-card[data-depth="2"] > .nested-reply-list > .reply-bundle > .reply-bundle-head,
+  .reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head {
+    padding-left: 14px;
   }
-}
-
-@media (max-width: 960px) {
-  /* once a reply has reached visual depth 2, never shrink subsequent descendants further */
-  .reply-card.reply-depth-2 .nested-reply-list,
-  .board-reply-card.reply-depth-2 .nested-reply-list,
-  .reply-depth-2 .nested-reply-list {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  .reply-card.reply-depth-2 .reply-card.reply-depth-2,
-  .reply-card.reply-depth-2 .board-reply-card.reply-depth-2,
-  .board-reply-card.reply-depth-2 .reply-card.reply-depth-2,
-  .board-reply-card.reply-depth-2 .board-reply-card.reply-depth-2,
-  .reply-depth-2 .reply-card.reply-depth-2,
-  .reply-depth-2 .board-reply-card.reply-depth-2,
-  .reply-depth-2 .reply-bundle-item > .reply-card,
-  .reply-depth-2 .reply-bundle-item > .board-reply-card {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  .reply-card.reply-depth-2 .reply-bundle,
-  .reply-card.reply-depth-2 .reply-bundle-inline,
-  .board-reply-card.reply-depth-2 .reply-bundle,
-  .board-reply-card.reply-depth-2 .reply-bundle-inline,
-  .reply-depth-2 .reply-bundle,
-  .reply-depth-2 .reply-bundle-inline {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-
-
-/* targeted v8 fixes: desktop reply-more alignment + universal depth cap after second nested reply */
-.reply-bundle-head {
-  padding-left: 0 !important;
-}
-
-@media (min-width: 961px) {
-  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
-  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
-  .reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
-  .reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head {
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-  }
-}
-
-/* depth 2 is the last visual indentation level across board/thread/mobile/desktop */
-.reply-card[data-depth="2"] > .nested-reply-list,
-.board-reply-card[data-depth="2"] > .nested-reply-list,
-.reply-depth-2 > .nested-reply-list {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.reply-depth-2 > .nested-reply-list > .reply-card,
-.reply-depth-2 > .nested-reply-list > .board-reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.reply-depth-2 .reply-bundle-item > .reply-card,
-.reply-depth-2 .reply-bundle-item > .board-reply-card {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.reply-card[data-depth="2"] .nested-reply-list .nested-reply-list,
-.board-reply-card[data-depth="2"] .nested-reply-list .nested-reply-list,
-.reply-depth-2 .nested-reply-list .nested-reply-list,
-.reply-card[data-depth="2"] .reply-bundle,
-.reply-card[data-depth="2"] .reply-bundle-inline,
-.board-reply-card[data-depth="2"] .reply-bundle,
-.board-reply-card[data-depth="2"] .reply-bundle-inline,
-.reply-depth-2 .reply-bundle,
-.reply-depth-2 .reply-bundle-inline {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-
-/* targeted v9 fixes: remove meaningless single-item reply bundles and hard-cap deep reply width after second nested reply */
-.reply-card[data-depth="2"],
-.board-reply-card[data-depth="2"] {
-  --deep-reply-pad: 20px;
-}
-
-.reply-card[data-depth="2"] > .nested-reply-list,
-.board-reply-card[data-depth="2"] > .nested-reply-list,
-.reply-depth-2 > .nested-reply-list {
-  margin-left: calc(var(--deep-reply-pad) * -1) !important;
-  margin-right: calc(var(--deep-reply-pad) * -1) !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  width: auto !important;
-  max-width: none !important;
-}
-
-.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.reply-depth-2 > .nested-reply-list > .reply-card,
-.reply-depth-2 > .nested-reply-list > .board-reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.reply-depth-2 .reply-bundle-item > .reply-card,
-.reply-depth-2 .reply-bundle-item > .board-reply-card {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: auto !important;
-  max-width: none !important;
-}
-
-.reply-card[data-depth="2"] .reply-bundle,
-.reply-card[data-depth="2"] .reply-bundle-inline,
-.board-reply-card[data-depth="2"] .reply-bundle,
-.board-reply-card[data-depth="2"] .reply-bundle-inline,
-.reply-depth-2 .reply-bundle,
-.reply-depth-2 .reply-bundle-inline {
-  margin-left: calc(var(--deep-reply-pad) * -1) !important;
-  margin-right: calc(var(--deep-reply-pad) * -1) !important;
-  width: auto !important;
-  max-width: none !important;
 }
 
 @media (max-width: 960px) {
   .reply-card[data-depth="2"],
-  .board-reply-card[data-depth="2"] {
-    --deep-reply-pad: 18px;
+  .board-reply-card[data-depth="2"],
+  .reply-depth-2 {
+    overflow: visible !important;
   }
-}
 
+  .reply-card[data-depth="2"] > .nested-reply-list,
+  .board-reply-card[data-depth="2"] > .nested-reply-list,
+  .reply-depth-2 > .nested-reply-list {
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
 
-/* targeted v10 fixes: keep reply-bundle aligned inside depth-capped replies */
-.reply-card[data-depth="2"] > .nested-reply-list,
-.board-reply-card[data-depth="2"] > .nested-reply-list,
-.reply-depth-2 > .nested-reply-list {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
+  .reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+  .reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+  .board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+  .board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+  .reply-depth-2 > .nested-reply-list > .reply-card,
+  .reply-depth-2 > .nested-reply-list > .board-reply-card {
+    width: calc(100% + 32px) !important;
+    max-width: calc(100% + 32px) !important;
+    margin-left: 0 !important;
+  }
 
-.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
-.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
-.reply-depth-2 > .nested-reply-list > .reply-card,
-.reply-depth-2 > .nested-reply-list > .board-reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .reply-card,
-.board-reply-card[data-depth="2"] .reply-bundle-item > .board-reply-card,
-.reply-depth-2 .reply-bundle-item > .reply-card,
-.reply-depth-2 .reply-bundle-item > .board-reply-card,
-.reply-card[data-depth="2"] .reply-bundle,
-.reply-card[data-depth="2"] .reply-bundle-inline,
-.board-reply-card[data-depth="2"] .reply-bundle,
-.board-reply-card[data-depth="2"] .reply-bundle-inline,
-.reply-depth-2 .reply-bundle,
-.reply-depth-2 .reply-bundle-inline {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-.reply-card[data-depth="2"] .reply-bundle-head,
-.board-reply-card[data-depth="2"] .reply-bundle-head,
-.reply-depth-2 .reply-bundle-head {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+  .reply-card[data-depth="2"] > .nested-reply-list > .reply-bundle,
+  .board-reply-card[data-depth="2"] > .nested-reply-list > .reply-bundle,
+  .reply-depth-2 > .nested-reply-list > .reply-bundle {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
 }

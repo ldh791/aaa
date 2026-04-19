@@ -89,7 +89,7 @@ $previewBatchCount = board_preview_batch_count();
                     $visualDepth = min($depth, 2);
                     $depthClass = 'reply-depth-' . $visualDepth;
                     $children = $reply['children'] ?? [];
-                    if ($compactNestedPreview && count($children) > 1) {
+                    if ($compactNestedPreview && $children !== []) {
                         $inlineChildren = [];
                         $bundledChildren = array_values($children);
                     } else {
