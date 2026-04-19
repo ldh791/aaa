@@ -132,7 +132,7 @@ $previewBatchCount = board_preview_batch_count();
                                         <div class="reply-bundle-list" data-bundle-list>
                                             <?php foreach ($bundledChildren as $bundleReply): ?>
                                                 <div class="reply-bundle-item is-collapsed" data-bundle-item>
-                                                    <?php $renderReply($bundleReply, $depth + 1, false, false); ?>
+                                                    <?php $renderReply($bundleReply, 2, false, false); ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>

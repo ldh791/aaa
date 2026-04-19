@@ -78,7 +78,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0, bool $isCollap
                         <div class="reply-bundle-list" data-bundle-list>
                             <?php foreach ($bundledChildren as $bundleReply): ?>
                                 <div class="reply-bundle-item is-collapsed" data-bundle-item>
-                                    <?php $renderReplyNode($bundleReply, $depth + 1, false, false); ?>
+                                    <?php $renderReplyNode($bundleReply, 2, false, false); ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
