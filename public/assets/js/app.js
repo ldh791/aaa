@@ -218,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     button.addEventListener('click', () => {
-      items.forEach((item) => item.classList.remove('is-collapsed'));
+      const hidden = items.filter((item) => item.classList.contains('is-collapsed'));
+      hidden.slice(0, batch).forEach((item) => item.classList.remove('is-collapsed'));
       updateBundle();
     });
 

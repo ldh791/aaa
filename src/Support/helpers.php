@@ -780,34 +780,19 @@ function visible_inline_children(array $children): array
 
 function hidden_bundle_children(array $children): array
 {
-    $children = array_values($children);
-    if ($children === []) {
+    if (count($children) <= 1) {
         return [];
     }
+    return array_slice(array_values($children), 1);
+}
 
-    $bundle = [];
-    $firstChild = $children[0] ?? null;
-    if (is_array($firstChild) && !empty($firstChild['children']) && is_array($firstChild['children'])) {
-        $bundle = array_merge($bundle, flatten_descendant_replies($firstChild['children']));
+function hidden_bundle_descendants(array $children): array
+{
+    $flat = flatten_descendant_replies($children);
+    if (count($flat) <= 1) {
+        return [];
     }
-
-    foreach (array_slice($children, 1) as $sibling) {
-        if (!is_array($sibling)) {
-            continue;
-        }
-        $copy = $sibling;
-        $grandChildren = [];
-        if (!empty($copy['children']) && is_array($copy['children'])) {
-            $grandChildren = $copy['children'];
-        }
-        unset($copy['children']);
-        $bundle[] = $copy;
-        if ($grandChildren !== []) {
-            $bundle = array_merge($bundle, flatten_descendant_replies($grandChildren));
-        }
-    }
-
-    return $bundle;
+    return array_slice($flat, 1);
 }
 
 function all_board_threads_raw(): array
