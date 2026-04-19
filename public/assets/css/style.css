@@ -2245,47 +2245,42 @@ html {
 }
 
 
-/* targeted v7 fixes: direct-only reply bundle counters + universal depth cap after level 2 */
-.reply-card.reply-depth-2 > .nested-reply-list,
-.board-reply-card.reply-depth-2 > .nested-reply-list,
+/* targeted v8 fixes: stable depth cap across PC/mobile + desktop reply-bundle alignment */
+.reply-card[data-depth="2"] > .nested-reply-list,
+.board-reply-card[data-depth="2"] > .nested-reply-list,
 .reply-depth-2 > .nested-reply-list {
   margin-left: 0 !important;
-  margin-right: 0 !important;
   padding-left: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
 }
 
-.reply-card.reply-depth-2 > .nested-reply-list > .reply-card,
-.reply-card.reply-depth-2 > .nested-reply-list > .board-reply-card,
-.board-reply-card.reply-depth-2 > .nested-reply-list > .reply-card,
-.board-reply-card.reply-depth-2 > .nested-reply-list > .board-reply-card,
+.reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .reply-card,
+.board-reply-card[data-depth="2"] > .nested-reply-list > .board-reply-card,
 .reply-depth-2 > .nested-reply-list > .reply-card,
 .reply-depth-2 > .nested-reply-list > .board-reply-card,
-.reply-depth-2 .reply-card.reply-depth-2,
-.reply-depth-2 .board-reply-card.reply-depth-2,
+.reply-card[data-depth="2"] .reply-bundle,
+.reply-card[data-depth="2"] .reply-bundle-inline,
+.board-reply-card[data-depth="2"] .reply-bundle,
+.board-reply-card[data-depth="2"] .reply-bundle-inline,
+.reply-depth-2 .reply-bundle,
+.reply-depth-2 .reply-bundle-inline,
 .reply-depth-2 .reply-bundle-item > .reply-card,
 .reply-depth-2 .reply-bundle-item > .board-reply-card {
   margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.reply-depth-2 .nested-reply-list > .reply-bundle,
-.reply-depth-2 .nested-reply-list > .reply-bundle-inline,
-.reply-card.reply-depth-2 .nested-reply-list > .reply-bundle,
-.reply-card.reply-depth-2 .nested-reply-list > .reply-bundle-inline,
-.board-reply-card.reply-depth-2 .nested-reply-list > .reply-bundle,
-.board-reply-card.reply-depth-2 .nested-reply-list > .reply-bundle-inline {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.reply-depth-2 .reply-bundle-head,
-.reply-card.reply-depth-2 .reply-bundle-head,
-.board-reply-card.reply-depth-2 .reply-bundle-head {
   padding-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (min-width: 961px) {
+  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
+  .reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
+  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
+  .board-reply-card.reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head,
+  .reply-depth-2 > .nested-reply-list > .reply-bundle > .reply-bundle-head,
+  .reply-depth-2 > .nested-reply-list > .reply-bundle-inline > .reply-bundle-head {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
 }

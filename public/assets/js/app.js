@@ -196,10 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.reply-bundle').forEach((bundle) => {
     const button = bundle.querySelector('[data-bundle-more]');
     const head = bundle.querySelector('.reply-bundle-head');
-    const list = bundle.querySelector('[data-bundle-list]');
-    if (!(button instanceof HTMLButtonElement) || !(list instanceof HTMLElement)) return;
+    if (!(button instanceof HTMLButtonElement)) return;
+    const items = Array.from(bundle.querySelectorAll('[data-bundle-item]'));
     const batch = Number(button.getAttribute('data-bundle-batch') || '10');
-    const items = Array.from(list.children).filter((item) => item.hasAttribute('data-bundle-item'));
     if (items.length === 0) {
       button.classList.add('is-collapsed');
       if (head) head.classList.add('is-collapsed');
