@@ -2243,3 +2243,53 @@ html {
     max-width: 100% !important;
   }
 }
+
+/* targeted reply bundle/depth cap fixes */
+.reply-card[data-depth="0"] > .nested-reply-list,
+.board-reply-card[data-depth="0"] > .nested-reply-list {
+  display: grid;
+  gap: 18px;
+}
+
+.reply-card.reply-depth-1,
+.board-reply-card.reply-depth-1 {
+  margin-left: 24px;
+}
+
+.reply-card.reply-depth-2,
+.board-reply-card.reply-depth-2 {
+  margin-left: 38px;
+}
+
+.reply-bundle-inline,
+.reply-bundle {
+  margin-left: 38px;
+}
+
+.reply-bundle-list {
+  display: grid;
+  gap: 18px;
+}
+
+.reply-bundle-item {
+  margin: 0;
+}
+
+.reply-bundle-item > .reply-card,
+.reply-bundle-item > .board-reply-card {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .reply-card.reply-depth-1,
+  .board-reply-card.reply-depth-1 {
+    margin-left: 12px;
+  }
+
+  .reply-card.reply-depth-2,
+  .board-reply-card.reply-depth-2,
+  .reply-bundle-inline,
+  .reply-bundle {
+    margin-left: 18px;
+  }
+}

@@ -775,24 +775,51 @@ function visible_inline_children(array $children): array
     if ($children === []) {
         return [];
     }
-    return [reset($children)];
+
+    $first = reset($children);
+    return is_array($first) ? [$first] : [];
 }
 
 function hidden_bundle_children(array $children): array
 {
-    if (count($children) <= 1) {
+    if ($children === []) {
         return [];
     }
-    return array_slice(array_values($children), 1);
-}
 
-function hidden_bundle_descendants(array $children): array
-{
-    $flat = flatten_descendant_replies($children);
-    if (count($flat) <= 1) {
+    $flat = [];
+
+    $walk = static function (array $nodes) use (&$walk, &$flat): void {
+        foreach ($nodes as $node) {
+            if (!is_array($node)) {
+                continue;
+            }
+            $copy = $node;
+            $children = is_array($copy['children'] ?? null) ? $copy['children'] : [];
+            unset($copy['children']);
+            $flat[] = $copy;
+            if ($children !== []) {
+                $walk($children);
+            }
+        }
+    };
+
+    $orderedChildren = array_values(array_filter($children, 'is_array'));
+    if ($orderedChildren === []) {
         return [];
     }
-    return array_slice($flat, 1);
+
+    $firstVisible = array_shift($orderedChildren);
+
+    $firstVisibleChildren = is_array($firstVisible['children'] ?? null) ? $firstVisible['children'] : [];
+    if ($firstVisibleChildren !== []) {
+        $walk($firstVisibleChildren);
+    }
+
+    if ($orderedChildren !== []) {
+        $walk($orderedChildren);
+    }
+
+    return $flat;
 }
 
 function all_board_threads_raw(): array

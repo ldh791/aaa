@@ -21,21 +21,12 @@ $displayNumbers = thread_display_number_map($thread);
 $initialReplyCount = thread_preview_initial_count();
 $replyBatchCount = thread_preview_batch_count();
 
-$renderReplyNode = static function (array $reply, int $depth = 0, bool $isCollapsed = false, bool $compactNestedPreview = false, bool $suppressNested = false) use (&$renderReplyNode, $boardKey, $threadId, $displayNumbers): void {
-    $visualDepth = min($depth, 2);
+$renderReplyNode = static function (array $reply, int $depth = 0, bool $isCollapsed = false, bool $suppressChildren = false, ?int $forcedVisualDepth = null) use (&$renderReplyNode, $boardKey, $threadId, $displayNumbers): void {
+    $visualDepth = $forcedVisualDepth ?? min($depth, 2);
     $depthClass = 'reply-depth-' . $visualDepth;
-    $children = $reply['children'] ?? [];
-    $inlineChildren = [];
-    $bundledChildren = [];
-    if (!$suppressNested && $children !== []) {
-        if ($depth === 0) {
-            $inlineChildren = visible_inline_children($children);
-            $bundledChildren = hidden_bundle_descendants($children);
-        } elseif ($compactNestedPreview) {
-            $inlineChildren = [];
-            $bundledChildren = [];
-        }
-    }
+    $children = $suppressChildren ? [] : ($reply['children'] ?? []);
+    $inlineChildren = $depth === 0 ? visible_inline_children($children) : [];
+    $bundledChildren = $depth === 0 ? hidden_bundle_children($children) : [];
     ?>
     <article class="reply-card glass-card <?= e($depthClass) ?><?= $isCollapsed ? ' is-collapsed' : '' ?>" id="post-<?= e((string) $reply['id']) ?>" data-depth="<?= e((string) $visualDepth) ?>"<?= $depth === 0 ? ' data-preview-item' : '' ?>>
         <div class="thread-meta">
@@ -68,7 +59,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0, bool $isCollap
         <?php if ($inlineChildren !== [] || $bundledChildren !== []): ?>
             <div class="nested-reply-list">
                 <?php foreach ($inlineChildren as $child): ?>
-                    <?php $renderReplyNode($child, $depth + 1, false, false, true); ?>
+                    <?php $renderReplyNode($child, $depth + 1, false, true, 1); ?>
                 <?php endforeach; ?>
 
                 <?php if ($bundledChildren !== []): ?>
@@ -82,7 +73,7 @@ $renderReplyNode = static function (array $reply, int $depth = 0, bool $isCollap
                         <div class="reply-bundle-list" data-bundle-list>
                             <?php foreach ($bundledChildren as $bundleReply): ?>
                                 <div class="reply-bundle-item is-collapsed" data-bundle-item>
-                                    <?php $renderReplyNode($bundleReply, 2, false, false, true); ?>
+                                    <?php $renderReplyNode($bundleReply, $depth + 1, false, true, 2); ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>

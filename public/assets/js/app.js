@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (head) head.classList.add('is-collapsed');
       return;
     }
+    const batch = Number(button.getAttribute('data-bundle-batch') || '10');
     const label = button.getAttribute('data-bundle-label') || '답글 더보기';
     const labelNode = button.querySelector('.reply-bundle-toggle-label');
     const countNode = button.querySelector('strong');
