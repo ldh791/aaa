@@ -775,7 +775,6 @@ function visible_inline_children(array $children): array
     if ($children === []) {
         return [];
     }
-
     $first = reset($children);
     return is_array($first) ? [$first] : [];
 }
@@ -786,6 +785,12 @@ function hidden_bundle_children(array $children): array
         return [];
     }
 
+    $orderedChildren = array_values(array_filter($children, 'is_array'));
+    if ($orderedChildren === []) {
+        return [];
+    }
+
+    $firstVisible = array_shift($orderedChildren);
     $flat = [];
 
     $walk = static function (array $nodes) use (&$walk, &$flat): void {
@@ -802,13 +807,6 @@ function hidden_bundle_children(array $children): array
             }
         }
     };
-
-    $orderedChildren = array_values(array_filter($children, 'is_array'));
-    if ($orderedChildren === []) {
-        return [];
-    }
-
-    $firstVisible = array_shift($orderedChildren);
 
     $firstVisibleChildren = is_array($firstVisible['children'] ?? null) ? $firstVisible['children'] : [];
     if ($firstVisibleChildren !== []) {

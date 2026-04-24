@@ -2244,52 +2244,60 @@ html {
   }
 }
 
-/* targeted reply bundle/depth cap fixes */
-.reply-card[data-depth="0"] > .nested-reply-list,
-.board-reply-card[data-depth="0"] > .nested-reply-list {
-  display: grid;
-  gap: 18px;
-}
 
+/* v9 reply depth + bundle count fixes */
 .reply-card.reply-depth-1,
 .board-reply-card.reply-depth-1 {
-  margin-left: 24px;
+  margin-left: 26px !important;
 }
-
 .reply-card.reply-depth-2,
-.board-reply-card.reply-depth-2 {
-  margin-left: 38px;
-}
-
+.board-reply-card.reply-depth-2,
 .reply-bundle-inline,
 .reply-bundle {
-  margin-left: 38px;
+  margin-left: 42px !important;
 }
-
+.reply-card.reply-depth-2 > .nested-reply-list,
+.board-reply-card.reply-depth-2 > .nested-reply-list,
+.reply-depth-2 > .nested-reply-list {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.reply-depth-2 .reply-card.reply-depth-2,
+.reply-depth-2 .board-reply-card.reply-depth-2,
+.reply-depth-2 .reply-bundle-inline,
+.reply-depth-2 .reply-bundle,
+.reply-bundle-item > .reply-card.reply-depth-2,
+.reply-bundle-item > .board-reply-card.reply-depth-2 {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+.reply-bundle-head {
+  margin-left: 0 !important;
+}
 .reply-bundle-list {
-  display: grid;
-  gap: 18px;
+  gap: 16px !important;
 }
-
-.reply-bundle-item {
-  margin: 0;
+.reply-bundle-item + .reply-bundle-item {
+  margin-top: 0 !important;
 }
-
-.reply-bundle-item > .reply-card,
-.reply-bundle-item > .board-reply-card {
-  margin: 0;
-}
-
 @media (max-width: 960px) {
   .reply-card.reply-depth-1,
   .board-reply-card.reply-depth-1 {
-    margin-left: 12px;
+    margin-left: 12px !important;
   }
-
   .reply-card.reply-depth-2,
   .board-reply-card.reply-depth-2,
   .reply-bundle-inline,
   .reply-bundle {
-    margin-left: 18px;
+    margin-left: 18px !important;
+  }
+  .reply-depth-2 .reply-card.reply-depth-2,
+  .reply-depth-2 .board-reply-card.reply-depth-2,
+  .reply-depth-2 .reply-bundle-inline,
+  .reply-depth-2 .reply-bundle,
+  .reply-bundle-item > .reply-card.reply-depth-2,
+  .reply-bundle-item > .board-reply-card.reply-depth-2 {
+    margin-left: 0 !important;
   }
 }
